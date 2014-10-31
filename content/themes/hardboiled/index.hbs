@@ -4,8 +4,11 @@
 {{! The big featured header }}
 <header class="main-header {{#if @blog.cover}}" style="background-image: url({{@blog.cover}}){{else}}no-cover{{/if}}">
   <nav class="main-nav overlay clearfix">
-    {{#if @blog.logo}}<a class="blog-logo" href="{{@blog.url}}"><img src="{{@blog.logo}}" alt="Blog Logo" /></a>{{/if}}
-    <a class="subscribe-button icon-feed" href="{{@blog.url}}/rss/">Hi Mag</a>
+    <!-- {{#if @blog.logo}}<a class="blog&#45;logo" href="{{@blog.url}}"><img src="{{@blog.logo}}" alt="Blog Logo" /></a>{{/if}} -->
+    <a class="subscribe-button test" href="{{@blog.url}}/">Home</a>
+    <a class="subscribe-button" href="{{@blog.url}}/about/">About</a>
+    <a class="subscribe-button" href="{{@blog.url}}/issues/">Issues</a>
+    <a class="subscribe-button" href="{{@blog.url}}/otherblogs/">Other Blogs</a>
   </nav>
   <div class="vertical">
     <div class="main-header-content inner">
