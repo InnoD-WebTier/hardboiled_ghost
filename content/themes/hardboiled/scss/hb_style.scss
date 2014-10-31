@@ -1,3 +1,326 @@
-.test {
-  color: #FFF;
+/* apply a natural box layout model to all elements, but allowing components to change */
+html {
+  box-sizing: border-box;
 }
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+li {
+  margin: 0;
+}
+
+@import "hb_vars";
+
+@mixin clearfix() {
+  &:before,
+  &:after {
+    content: " "; // 1
+    display: table; // 2
+  }
+  &:after {
+    clear: both;
+  }
+}
+
+.hb-container {
+  margin-right: auto;
+  margin-left: auto;
+  padding-left:  ($grid-gutter-width / 2);
+  padding-right: ($grid-gutter-width / 2);
+  @include clearfix;
+}
+
+//
+// Navs
+// --------------------------------------------------
+
+// Base class
+// --------------------------------------------------
+
+.hb-nav {
+  margin-bottom: 0;
+  padding-left: 0; // Override default ul/ol
+  list-style: none;
+  @include clearfix;
+
+  > li {
+    position: relative;
+    display: block;
+
+    > a {
+      position: relative;
+      display: block;
+      padding: $nav-link-padding;
+      &:hover,
+      &:focus {
+        text-decoration: none;
+        background-color: $nav-link-hover-bg;
+      }
+    }
+
+    // Disabled state sets text to gray and nukes hover/tab effects
+    &.disabled > a {
+      color: $nav-disabled-link-color;
+
+      &:hover,
+      &:focus {
+        color: $nav-disabled-link-hover-color;
+        text-decoration: none;
+        background-color: transparent;
+        cursor: $cursor-disabled;
+      }
+    }
+  }
+
+  // Open dropdowns
+  .open > a {
+    &,
+    &:hover,
+    &:focus {
+      background-color: $nav-link-hover-bg;
+      border-color: $link-color;
+    }
+  }
+
+  // Prevent IE9 from misplacing imgs
+  //
+  // See https://github.com/h5bp/html5-boilerplate/issues/994#issuecomment-3995999
+  > li > a > img {
+    max-width: none;
+  }
+}
+
+.hb-navbar {
+  position: relative;
+  min-height: $navbar-height;
+  margin-bottom: $navbar-margin-bottom;
+  border-bottom: 1px solid transparent;
+
+  // Prevent floats from breaking the navbar
+  @include clearfix;
+}
+
+// Default navbar
+.hb-navbar-default {
+  background-color: $hb-white;
+  border-color: $hb-blue;
+
+  .hb-navbar-brand {
+    color: $hb-white;
+    background-color: $hb-blue;
+  }
+
+  .hb-navbar-text {
+    color: $navbar-default-color;
+  }
+
+  .hb-navbar-nav {
+    > li > a {
+      color: $navbar-default-link-color;
+      font-family: $header-font;
+      font-size: $font-size-base;
+      text-transform: lowercase;
+      text-decoration: none;
+      transition: none;
+
+      &:hover,
+      &:focus {
+        color: $hb-white;
+        background-color: $hb-blue;
+      }
+    }
+    > .active > a {
+      &,
+      &:hover,
+      &:focus {
+        color: $hb-white;
+        background-color: $hb-blue;
+      }
+    }
+    // TODO
+    > .disabled > a {
+      &,
+      &:hover,
+      &:focus {
+        color: $navbar-default-link-disabled-color;
+        background-color: $navbar-default-link-disabled-bg;
+      }
+    }
+  }
+
+  .hb-navbar-toggle {
+    border-color: $navbar-default-toggle-border-color;
+    &:hover,
+    &:focus {
+      background-color: $navbar-default-toggle-hover-bg;
+    }
+    .icon-bar {
+      background-color: $navbar-default-toggle-icon-bar-bg;
+    }
+  }
+
+  .hb-navbar-collapse,
+  .hb-navbar-form {
+    border-color: $navbar-default-border;
+  }
+
+  // Dropdown menu items
+  .hb-navbar-nav {
+    // Remove background color from open dropdown
+    > .open > a {
+      &,
+      &:hover,
+      &:focus {
+        background-color: $navbar-default-link-active-bg;
+        color: $navbar-default-link-active-color;
+      }
+    }
+
+    @media (max-width: $grid-float-breakpoint-max) {
+      // Dropdowns get custom display when collapsed
+      .open .dropdown-menu {
+        > li > a {
+          color: $navbar-default-link-color;
+          &:hover,
+          &:focus {
+            color: $navbar-default-link-hover-color;
+            background-color: $navbar-default-link-hover-bg;
+          }
+        }
+        > .active > a {
+          &,
+          &:hover,
+          &:focus {
+            color: $navbar-default-link-active-color;
+            background-color: $navbar-default-link-active-bg;
+          }
+        }
+        > .disabled > a {
+          &,
+          &:hover,
+          &:focus {
+            color: $navbar-default-link-disabled-color;
+            background-color: $navbar-default-link-disabled-bg;
+          }
+        }
+      }
+    }
+  }
+
+
+  // Links in navbars
+  //
+  // Add a class to ensure links outside the navbar nav are colored correctly.
+
+  .hb-navbar-link {
+    color: $navbar-default-link-color;
+    &:hover {
+      color: $navbar-default-link-hover-color;
+    }
+  }
+
+  .hb-btn-link {
+    color: $navbar-default-link-color;
+    &:hover,
+    &:focus {
+      color: $navbar-default-link-hover-color;
+    }
+    &[disabled],
+    fieldset[disabled] & {
+      &:hover,
+      &:focus {
+        color: $navbar-default-link-disabled-color;
+      }
+    }
+  }
+}
+
+// Navbar nav links
+//
+// Builds on top of the `.nav` components with its own modifier class to make
+// the nav the full height of the horizontal nav (above 769px).
+
+.hb-navbar-nav {
+
+  > li > a {
+    padding-top:    10px;
+    padding-bottom: 10px;
+    line-height: $line-height-computed;
+  }
+
+  @media (max-width: $grid-float-breakpoint-max) {
+    // Dropdowns get custom display when collapsed
+    .open .dropdown-menu {
+      position: static;
+      float: none;
+      width: auto;
+      margin-top: 0;
+      background-color: transparent;
+      border: 0;
+      box-shadow: none;
+      > li > a,
+      .dropdown-header {
+        padding: 5px 15px 5px 25px;
+      }
+      > li > a {
+        line-height: $line-height-computed;
+        &:hover,
+        &:focus {
+          background-image: none;
+        }
+      }
+    }
+  }
+
+  // Uncollapse the nav
+  @media (min-width: $grid-float-breakpoint) {
+    float: right;
+
+    > li {
+      float: left;
+      > a {
+        padding-top:    $navbar-padding-vertical;
+        padding-bottom: $navbar-padding-vertical;
+      }
+    }
+  }
+}
+
+// Navbar heading
+//
+// Groups `.navbar-brand` and `.navbar-toggle` into a single component for easy
+// styling of responsive aspects.
+
+.hb-navbar-header {
+  @include clearfix;
+
+  @media (min-width: $grid-float-breakpoint) {
+    float: left;
+  }
+}
+
+// Brand/project name
+
+.hb-navbar-brand {
+  float: left;
+  padding: ($navbar-padding-vertical + 10) ($navbar-padding-horizontal + 10) ($navbar-padding-horizontal - 10) ($navbar-padding-horizontal - 10);
+  font-family: $header-font;
+  font-size: $font-size-large;
+  font-weight: bold;
+  line-height: ($navbar-height / 2);
+  height: $navbar-height;
+  text-transform: lowercase;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+  }
+
+  > img {
+    display: block;
+  }
+}
+
+

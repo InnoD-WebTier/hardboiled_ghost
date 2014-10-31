@@ -2,6 +2,8 @@
  * Main JS file for Casper behaviours
  */
 
+var hello = 5;
+
 /* globals jQuery, document */
 (function ($, sr, undefined) {
     "use strict";
