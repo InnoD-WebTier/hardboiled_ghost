@@ -80,6 +80,15 @@ li {
     .hb-navbar-default .hb-navbar-nav > li > a:hover, .hb-navbar-default .hb-navbar-nav > li > a:focus {
       color: #ffffff;
       background-color: #00aaf2; }
+    .hb-navbar-default .hb-navbar-nav > li > a:hover::after {
+      content: "";
+      top: 100%;
+      left: 50%;
+      position: absolute;
+      border-top: 8px solid #00aaf2;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      margin-left: -5px; }
   .hb-navbar-default .hb-navbar-nav > .active > a, .hb-navbar-default .hb-navbar-nav > .active > a:hover, .hb-navbar-default .hb-navbar-nav > .active > a:focus {
     color: #ffffff;
     background-color: #00aaf2; }
