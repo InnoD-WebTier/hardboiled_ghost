@@ -35,12 +35,58 @@
 <main id="content" class="content" role="main">
 
   {{!-- Blog posts --}}
-  
+  <div class="row">
+
+    <div class="col-md-9">
+
+        {{> "loop"}}
+
+    </div>
+
+
+    <div class="col-md-3"> 
+      <div id="fb-root"></div>
+      <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.0";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));</script>
+
+      <div class="fb-like-box" data-href="https://www.facebook.com/FacebookDevelopers" data-colorscheme="light" data-show-faces="true" data-header="true" data-stream="true" data-show-border="true"></div>
+
+      <br>
+      <br>
+      <br>
+      
+      <a class="twitter-timeline"
+      href="https://twitter.com/twitterdev"
+      data-widget-id="YOUR-WIDGET-ID-HERE">
+      Tweets by @twitterdev
+      </a>
+      <script type="text/javascript">
+      window.twttr = (function (d, s, id) {
+      var t, js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id; js.src= "https://platform.twitter.com/widgets.js";
+      fjs.parentNode.insertBefore(js, fjs);
+      return window.twttr || (t = { _e: [], ready: function (f) { t._e.push(f) } });
+      }(document, "script", "twitter-wjs"));
+      </script>
+
+      <div class="row">
+        <p> laksjdlkasjdaklsjasjlk </p>
+      </div>
+
+
+     </div>
+
 
   {{! The tag below includes the post loop - partials/loop.hbs }}
-  {{> "loop"}}
 
 
+  </div>
   {{!-- Right side --}}
 
 </main>
