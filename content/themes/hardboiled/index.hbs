@@ -1,5 +1,10 @@
 {{!< default}}
 {{! The tag above means - insert everything in this file into the {body} of the default.hbs template }}
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet"> </script>
+
+
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js" type="javascript"> </script>
+
 
 {{! The big featured header }}
 <header class="main-header {{#if @blog.cover}}" style="background-image: url({{@blog.cover}}){{else}}no-cover{{/if}}">
@@ -29,7 +34,13 @@
 {{! The main content area on the homepage }}
 <main id="content" class="content" role="main">
 
+  {{!-- Blog posts --}}
+  
+
   {{! The tag below includes the post loop - partials/loop.hbs }}
   {{> "loop"}}
+
+
+  {{!-- Right side --}}
 
 </main>
