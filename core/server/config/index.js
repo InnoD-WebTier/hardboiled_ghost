@@ -118,6 +118,8 @@ ConfigManager.prototype.set = function (config) {
             appPath:          path.resolve(contentPath, 'apps'),
             imagesPath:       path.resolve(contentPath, 'images'),
             imagesRelPath:    'content/images',
+            pdfPath:          path.resolve(contentPath, 'pdf'),
+            pdfRelPath:       'content/pdf',
 
             adminViews:       path.join(corePath, '/server/views/'),
             helperTemplates:  path.join(corePath, '/server/helpers/tpl/'),

@@ -110,6 +110,23 @@ coreHelpers.page_url = function (context, block) {
     return url;
 };
 
+// ### Active PAge
+// `{{is_active}}`
+// active if page is active
+coreHelpers.is_active = function (context, options) {
+    options = options || {};
+    options.hash = options.hash || {};
+
+    context = _.extend(context, options.data, this);
+    context.hash.class = context.hash.class || 'active';
+    var active = '';
+    if (context.isCurrentPage === true) {
+      active = ' class="' + context.hash.class + '"';
+    }
+
+    return new hbs.handlebars.SafeString(active);
+};
+
 // ### Page URL Helper: DEPRECATED
 //
 // *Usage example:*
@@ -884,6 +901,8 @@ registerHelpers = function (adminHbs, assetHash) {
     registerThemeHelper('has', coreHelpers.has);
 
     registerThemeHelper('page_url', coreHelpers.page_url);
+
+    registerThemeHelper('is_active', coreHelpers.is_active);
 
     registerThemeHelper('pageUrl', coreHelpers.pageUrl);
 

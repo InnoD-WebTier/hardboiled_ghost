@@ -12,6 +12,14 @@
         <div class="nav-label"><i class="icon-add"></i> New Post</div>
     {{/link-to}}
 
+    {{#link-to "issues" classNames="nav-item nav-new js-nav-item"}}
+        <div class="nav-label"><i class="icon-content"></i> Issues</div>
+    {{/link-to}}
+
+    {{#link-to "issue_editor.new" classNames="nav-item nav-new js-nav-item"}}
+        <div class="nav-label"><i class="icon-add"></i> New Issue</div>
+    {{/link-to}}
+
     {{#unless session.user.isAuthor}}
     {{#link-to "settings" classNames="nav-item nav-settings js-nav-item"}}
         <div class="nav-label"><i class="icon-settings2"></i> Settings</div>

@@ -1,0 +1,11 @@
+<header class="post-preview-header clearfix">
+  {{#link-to "issues" tagName="button" class="btn btn-default btn-back"}}Back{{/link-to}}
+  <h2 class="page-title">Issue</h2>
+</header>
+
+{{#view "content-preview-content-view" tagName="section"}}
+  <div class="wrapper">
+    <h1>{{title}}</h1>
+    <p>{{pdf}}</p>
+  </div>
+{{/view}}

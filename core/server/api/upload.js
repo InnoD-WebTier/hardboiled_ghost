@@ -14,6 +14,13 @@ function isImage(type, ext) {
     return false;
 }
 
+function isPdf(type, ext) {
+  if (type === 'application/pdf' && ext === '.pdf') {
+    return true;
+  }
+  return false;
+}
+
 /**
  * ## Upload API Methods
  *
@@ -54,7 +61,42 @@ upload = {
             // Remove uploaded file from tmp location
             return Promise.promisify(fs.unlink)(filepath);
         });
-    }
+    },
+
+    /**
+     * ### Add PDF
+     *
+     * @public
+     * @param {{context}} options
+     * @returns {Promise} Success
+     */
+    addPdf: function (options) {
+        var store = storage.getStorage(),
+            type,
+            ext,
+            filepath;
+
+        if (!options.uploadpdf || !options.uploadpdf.type || !options.uploadpdf.path) {
+            return Promise.reject(new errors.NoPermissionError('Please select a pdf.'));
+        }
+
+        type = options.uploadpdf.type;
+        ext = path.extname(options.uploadpdf.name).toLowerCase();
+        filepath = options.uploadpdf.path;
+
+        return Promise.resolve(isPdf(type, ext)).then(function (result) {
+            if (!result) {
+                return Promise.reject(new errors.UnsupportedMediaTypeError('Please select a valid pdf.'));
+            }
+        }).then(function () {
+            return store.savePdf(options.uploadpdf);
+        }).then(function (url) {
+            return url;
+        }).finally(function () {
+            // Remove uploaded file from tmp location
+            return Promise.promisify(fs.unlink)(filepath);
+        });
+    },
 };
 
 module.exports = upload;

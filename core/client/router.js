@@ -35,6 +35,12 @@ Router.map(function () {
         });
         this.route('about');
     });
+    this.resource('issues', function() {
+        this.route('issue', { path: ':issue_id' });
+    });
+    this.resource('issue_editor', function() {
+        this.route('new', { path: '' });
+    });
     this.route('debug');
     //Redirect legacy content to posts
     this.route('content');

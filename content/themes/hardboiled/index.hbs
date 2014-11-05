@@ -24,11 +24,12 @@
         <a class="hb-navbar-brand" href="{{@blog.url}}/">hb</a>
       </div>
       <ul class="hb-nav hb-navbar-nav">
+        <!-- <li>{{page_url}}</li> -->
         <!-- {{#if @blog.logo}}<a class="blog&#45;logo" href="{{@blog.url}}"><img src="{{@blog.logo}}" alt="Blog Logo" /></a>{{/if}} -->
-        <li><a href="{{@blog.url}}/">Home</a></li>
-        <li><a href="{{@blog.url}}/about/">About</a></li>
-        <li><a href="{{@blog.url}}/issues/">Issues</a></li>
-        <li><a href="{{@blog.url}}/otherblogs/">Other Blogs</a></li>
+        <li {{is_active}}><a href="{{@blog.url}}/">Home</a></li>
+        <li {{is_active}}><a href="{{@blog.url}}/about/">About</a></li>
+        <li {{is_active}}><a href="{{@blog.url}}/issues/">Issues</a></li>
+        <li {{is_active}}><a href="{{@blog.url}}/otherblogs/">Other Blogs</a></li>
       </ul>
     </div>
   </nav>

@@ -21,6 +21,48 @@ var db = {
             published_at: {type: 'dateTime', nullable: true},
             published_by: {type: 'integer', nullable: true}
         },
+        issues: {
+            id: {type: 'increments', nullable: false, primary: true},
+            uuid: {type: 'string', maxlength: 36, nullable: false, validations: {isUUID: true}},
+            title: {type: 'string', maxlength: 150, nullable: false},
+            slug: {type: 'string', maxlength: 150, nullable: false, unique: true},
+            image: {type: 'text', maxlength: 2000, nullable: true},
+            pdf: {type: 'text', maxlength: 2000, nullable: true},
+            status: {type: 'string', maxlength: 150, nullable: false, defaultTo: 'draft'},
+            language: {type: 'string', maxlength: 6, nullable: false, defaultTo: 'en_US'},
+            meta_title: {type: 'string', maxlength: 150, nullable: true},
+            meta_description: {type: 'string', maxlength: 200, nullable: true},
+            created_at: {type: 'dateTime', nullable: false},
+            created_by: {type: 'integer', nullable: false},
+            updated_at: {type: 'dateTime', nullable: true},
+            updated_by: {type: 'integer', nullable: true},
+            published_at: {type: 'dateTime', nullable: true},
+            published_by: {type: 'integer', nullable: true}
+        },
+        articles: {
+            id: {type: 'increments', nullable: false, primary: true},
+            uuid: {type: 'string', maxlength: 36, nullable: false, validations: {isUUID: true}},
+            title: {type: 'string', maxlength: 150, nullable: false},
+            slug: {type: 'string', maxlength: 150, nullable: false, unique: true},
+            markdown: {type: 'text', maxlength: 16777215, fieldtype: 'medium', nullable: true},
+            html: {type: 'text', maxlength: 16777215, fieldtype: 'medium', nullable: true},
+            image: {type: 'text', maxlength: 2000, nullable: true},
+            pdf_start: {type: 'integer', nullable: false},
+            pdf_end: {type: 'integer', nullable: false},
+            page: {type: 'bool', nullable: false, defaultTo: false, validations: {isIn: [[0, 1, false, true]]}},
+            issue_id: {type: 'integer', nullable: false},
+            status: {type: 'string', maxlength: 150, nullable: false, defaultTo: 'draft'},
+            language: {type: 'string', maxlength: 6, nullable: false, defaultTo: 'en_US'},
+            meta_title: {type: 'string', maxlength: 150, nullable: true},
+            meta_description: {type: 'string', maxlength: 200, nullable: true},
+            author_id: {type: 'integer', nullable: false},
+            created_at: {type: 'dateTime', nullable: false},
+            created_by: {type: 'integer', nullable: false},
+            updated_at: {type: 'dateTime', nullable: true},
+            updated_by: {type: 'integer', nullable: true},
+            published_at: {type: 'dateTime', nullable: true},
+            published_by: {type: 'integer', nullable: true}
+        },
         users: {
             id: {type: 'increments', nullable: false, primary: true},
             uuid: {type: 'string', maxlength: 36, nullable: false, validations: {isUUID: true}},
@@ -118,6 +160,16 @@ var db = {
             post_id: {type: 'integer', nullable: false, unsigned: true, references: 'posts.id'},
             tag_id: {type: 'integer', nullable: false, unsigned: true, references: 'tags.id'}
         },
+        issues_tags: {
+            id: {type: 'increments', nullable: false, primary: true},
+            issue_id: {type: 'integer', nullable: false, unsigned: true, references: 'issues.id'},
+            tag_id: {type: 'integer', nullable: false, unsigned: true, references: 'tags.id'}
+        },
+        articles_tags: {
+            id: {type: 'increments', nullable: false, primary: true},
+            article_id: {type: 'integer', nullable: false, unsigned: true, references: 'articles.id'},
+            tag_id: {type: 'integer', nullable: false, unsigned: true, references: 'tags.id'}
+        },
         apps: {
             id: {type: 'increments', nullable: false, primary: true},
             uuid: {type: 'string', maxlength: 36, nullable: false, validations: {isUUID: true}},
@@ -180,12 +232,22 @@ var db = {
             user_id: {type: 'integer', nullable: false, unsigned: true, references: 'users.id'},
             client_id: {type: 'integer', nullable: false, unsigned: true, references: 'clients.id'},
             expires: {type: 'bigInteger', nullable: false}
-        }
+        },
     };
 
 function isPost(jsonData) {
     return jsonData.hasOwnProperty('html') && jsonData.hasOwnProperty('markdown') &&
            jsonData.hasOwnProperty('title') && jsonData.hasOwnProperty('slug');
+}
+
+function isIssue(jsonData) {
+    return jsonData.hasOwnProperty('title') && jsonData.hasOwnProperty('slug') &&
+           jsonData.hasOwnProperty('pdf');
+}
+
+function isArticle(jsonData) {
+    return jsonData.hasOwnProperty('title') && jsonData.hasOwnProperty('slug') &&
+           jsonData.hasOwnProperty('pdf_start') && jsonData.hasOwnProperty('pdf_end');
 }
 
 function isTag(jsonData) {
@@ -201,6 +263,8 @@ function isUser(jsonData) {
 module.exports.tables = db;
 module.exports.checks = {
     isPost: isPost,
+    isIssue: isIssue,
+    isArticle: isArticle,
     isTag: isTag,
     isUser: isUser
 };

@@ -268,6 +268,7 @@ setupMiddleware = function (blogAppInstance, adminApp) {
     // Static assets
     blogApp.use('/shared', express['static'](path.join(corePath, '/shared'), {maxAge: utils.ONE_HOUR_MS}));
     blogApp.use('/content/images', storage.getStorage().serve());
+    blogApp.use('/content/pdf', storage.getStorage().servePdf());
     blogApp.use('/ghost/scripts', express['static'](path.join(corePath, '/built/scripts'), {maxAge: utils.ONE_YEAR_MS}));
     blogApp.use('/public', express['static'](path.join(corePath, '/built/public'), {maxAge: utils.ONE_YEAR_MS}));
 

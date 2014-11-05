@@ -1,5 +1,5 @@
 import MobileContentView from 'ghost/views/mobile/content-view';
 
-var PostsPostView = MobileContentView.extend();
+var IssuesIssueView = MobileContentView.extend();
 
-export default PostsPostView;
+export default IssuesIssueView;

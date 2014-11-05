@@ -54,4 +54,35 @@ LocalFileStore.prototype.serve = function () {
     return express['static'](config.paths.imagesPath, {maxAge: utils.ONE_YEAR_MS});
 };
 
+// ### Save PDF
+// Saves the pdf to storage (the file system)
+// - pdf is the express pdf object
+// - returns a promise which ultimately returns the full url to the uploaded pdf
+LocalFileStore.prototype.savePdf = function(pdf) {
+    var targetDir = this.getTargetDir(config.paths.pdfPath),
+        targetFilename;
+
+    return this.getUniqueFileName(this, pdf, targetDir).then(function (filename) {
+        targetFilename = filename;
+        return Promise.promisify(fs.mkdirs)(targetDir);
+    }).then(function () {
+        return Promise.promisify(fs.copy)(pdf.path, targetFilename);
+    }).then(function () {
+        // The src for the image must be in URI format, not a file system path, which in Windows uses \
+        // For local file system storage can use relative path so add a slash
+        var fullUrl = (config.paths.subdir + '/' + config.paths.pdfRelPath + '/' +
+            path.relative(config.paths.pdfPath, targetFilename)).replace(new RegExp('\\' + path.sep, 'g'), '/');
+        return fullUrl;
+    }).catch(function (e) {
+        errors.logError(e);
+        return Promise.reject(e);
+    });
+};
+
+// middleware for serving the files
+LocalFileStore.prototype.servePdf = function () {
+    // For some reason send divides the max age number by 1000
+    return express['static'](config.paths.pdfPath, {maxAge: utils.ONE_YEAR_MS});
+};
+
 module.exports = LocalFileStore;

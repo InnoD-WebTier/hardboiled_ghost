@@ -121,6 +121,10 @@
 .btn-red {
     @include button-style(#fff, $red, darken($red, 5%));
 }
+.btn-upload {
+  position: relative;
+  overflow: hidden;
+}
 
 
 // Link buttons

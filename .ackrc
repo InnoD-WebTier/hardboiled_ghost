@@ -1,0 +1,3 @@
+--ignore-dir=.tmp
+--ignore-dir=bower_components
+--ignore-dir=core/built

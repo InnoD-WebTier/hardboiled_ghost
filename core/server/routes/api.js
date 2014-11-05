@@ -85,6 +85,11 @@ apiRoutes = function (middleware) {
 
     // ## Uploads
     router.post('/uploads', middleware.busboy, api.http(api.uploads.add));
+    router.post('/uploads/pdf', middleware.busboy, api.http(api.uploads.addPdf));
+
+    // ## Issues
+    router.get('/issues', api.http(api.issues.browse));
+    router.post('/issues', api.http(api.issues.add));
 
     return router;
 };
