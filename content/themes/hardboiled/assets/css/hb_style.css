@@ -180,3 +180,20 @@ li {
     text-decoration: none; }
   .hb-navbar-brand > img {
     display: block; }
+
+.hb-post-title {
+  font-size: 50px;
+  font-weight: bold; }
+  .hb-post-title a {
+    color: black; }
+
+.hb-article {
+  border-bottom: solid 2px #00aaf2; }
+
+.hb-article:after {
+  width: 10px;
+  height: 12px;
+  border: #00aaf2 2px solid; }
+
+.hb-post-excerpt p {
+  font-size: 15px; }

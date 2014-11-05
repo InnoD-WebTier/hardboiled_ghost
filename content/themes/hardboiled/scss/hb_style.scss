@@ -333,4 +333,28 @@ li {
   }
 }
 
+// Blogpost (loop) styling
+.hb-post-title {
+  font-size: $blogpost-title-frontpage-fontsize;
+  font-weight: bold;
+  a {
+    color: $blogpost-title-frontpage-color;
+  }
+}
+
+.hb-article {
+  border-bottom: solid 2px $hb-blue;
+}
+
+.hb-article:after {
+  width: 10px;
+  height: 12px;
+  border: $hb-blue 2px solid;
+}
+
+.hb-post-excerpt{
+  p {
+    font-size: 15px;
+  }
+}
 
