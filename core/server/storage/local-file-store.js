@@ -79,6 +79,12 @@ LocalFileStore.prototype.savePdf = function(pdf) {
     });
 };
 
+// ### Delete PDF
+// Delete the pdf at the path given
+LocalFileStore.prototype.deletePdf = function(pdfPath) {
+  return Promise.promisify(fs.unlink)(pdfPath.substring(1));
+};
+
 // middleware for serving the files
 LocalFileStore.prototype.servePdf = function () {
     // For some reason send divides the max age number by 1000

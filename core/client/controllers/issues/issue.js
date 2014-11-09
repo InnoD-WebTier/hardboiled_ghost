@@ -3,8 +3,6 @@ var IssueController = Ember.ObjectController.extend({
 
     actions: {
         showIssueContent: function () {
-            Ember.Logger.log('showIssueContent called');
-            Ember.Logger.log(this.get('model'));
             this.transitionToRoute('issues.issue', this.get('model'));
         }
     }

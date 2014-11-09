@@ -13,7 +13,6 @@ var PdfIssueUploader = Ember.Component.extend({
         });
 
         $this.on('uploadsuccess', function (event, result) {
-            Ember.Logger.log('uploadsuccess recieved');
             if (result && result !== '' && result !== 'http://') {
                 self.sendAction('uploaded', result);
             }

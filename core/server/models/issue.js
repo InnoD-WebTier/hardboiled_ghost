@@ -5,6 +5,7 @@ var _              = require('lodash'),
     errors         = require('../errors'),
     ghostBookshelf = require('./base'),
     xmlrpc         = require('../xmlrpc'),
+    storage        = require('../storage'),
 
     Issue,
     Issues;
@@ -185,7 +186,8 @@ Issue = ghostBookshelf.Model.extend({
                 findAll: ['withRelated'],
                 findOne: ['importing', 'withRelated'],
                 findPage: ['page', 'limit', 'status', 'staticPages'],
-                add: ['importing']
+                add: ['importing'],
+                destroy: ['pdf']
             };
 
         if (validOptions[methodName]) {
@@ -234,13 +236,15 @@ Issue = ghostBookshelf.Model.extend({
     findOne: function (data, options) {
         options = options || {};
 
-        data = _.extend({
-            status: 'published'
-        }, data || {});
-
-        if (data.status === 'all') {
-            delete data.status;
-        }
+        // TODO
+        // data = _.extend({
+        //     status: 'published'
+        // }, data || {});
+        //
+        // if (data.status === 'all') {
+        //     delete data.status;
+        // }
+        delete data.status;
 
         // Add related objects
         options.withRelated = _.union(['tags'], options.include);
@@ -292,9 +296,14 @@ Issue = ghostBookshelf.Model.extend({
         var id = options.id;
         options = this.filterOptions(options, 'destroy');
 
+        var store = storage.getStorage(),
+            pdfPath = options.pdf;
+
         return this.forge({id: id}).fetch({withRelated: ['tags']}).then(function destroyTagsAndIssue(issue) {
             return issue.related('tags').detach().then(function () {
                 return issue.destroy(options);
+            }).then(function () {
+                return store.deletePdf(pdfPath);
             });
         });
     },

@@ -19,7 +19,6 @@ UploadUi = function ($upload_button, settings) {
 
     $.extend(this, {
         complete: function (result) {
-          Ember.Logger.log(result);
           $('<a/>').addClass('btn')
             .addClass('btn-blue')
             .attr('href', result)
@@ -59,9 +58,6 @@ UploadUi = function ($upload_button, settings) {
                 },
                 fail: function (e, data) {
                     /*jshint unused:false*/
-                    Ember.Logger.log("failed upload!");
-                    Ember.Logger.log(e);
-                    Ember.Logger.log(data);
                     $('.js-button-accept').prop('disabled', false);
                     $upload_button.trigger('uploadfailure', [data.result]);
                     $upload_button.find('.js-upload-progress-bar').addClass('fail');
@@ -82,7 +78,6 @@ UploadUi = function ($upload_button, settings) {
                 },
                 done: function (e, data) {
                     /*jshint unused:false*/
-                    Ember.Logger.log("done!");
                     self.complete(data.result);
                 }
             });

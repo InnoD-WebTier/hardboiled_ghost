@@ -13,6 +13,12 @@ var IssuesNewRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin, styl
     });
   },
 
+  setupController: function (controller, model) {
+    this._super(controller, model);
+    controller.set('publishedAtValue', '');
+    controller.set('titleValue', '');
+  },
+
   actions: {
     willTransition: function (transition) {
       //TODO: not working :(
@@ -30,11 +36,6 @@ var IssuesNewRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin, styl
     save: function() {
       this.get('controller').send('save');
     },
-  },
-
-  setupController: function(controller, model) {
-    this._super(controller, model);
-    controller.set('titleScratch', '');
   },
 
 });

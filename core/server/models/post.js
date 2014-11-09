@@ -8,6 +8,9 @@ var _              = require('lodash'),
     converter      = new Showdown.converter({extensions: [ghostgfm]}),
     ghostBookshelf = require('./base'),
     xmlrpc         = require('../xmlrpc'),
+    path           = require('path'),
+    fs             = require('fs-extra'),
+    storage        = require('../storage'),
 
     Post,
     Posts;

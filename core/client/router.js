@@ -40,6 +40,7 @@ Router.map(function () {
     });
     this.resource('issue_editor', function() {
         this.route('new', { path: '' });
+        this.route('edit', { path: ':issue_id' });
     });
     this.route('debug');
     //Redirect legacy content to posts

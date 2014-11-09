@@ -13,16 +13,23 @@ var IssuesIssueRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin, lo
             return this.transitionTo('error404', params.issue_id);
         }
 
-        issue = this.store.getById('issue', issueId);
+        return this.store.findById('issue', issueId).then(function (issue) {
+          return issue;
+        }).catch(function (errors) {
+          return self.transitionTo('issues.index');
+        });
 
-        if (issue) {
-            return issue;
-        }
+    },
+
+    serialize: function(model) {
+      return {issue_id: model.get('id')};
     },
 
     setupController: function (controller, model) {
         this._super(controller, model);
-        this.controllerFor('issues').set('currentIssue', model);
+
+        controller.set('titleValue', model.get('title'));
+        controller.set('publishedAtValue', model.get('published_at'));
     },
 
     actions: {

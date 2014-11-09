@@ -20,6 +20,14 @@ apiRoutes = function (middleware) {
     router.put('/posts/:id', api.http(api.posts.edit));
     router.del('/posts/:id', api.http(api.posts.destroy));
 
+    // ## Issues
+    router.get('/issues', api.http(api.issues.browse));
+    router.post('/issues', api.http(api.issues.add));
+    router.get('/issues/:id', api.http(api.issues.read));
+    router.get('/issues/slug/:slug', api.http(api.issues.read));
+    router.put('/issues/:id', api.http(api.issues.edit));
+    router.del('/issues/:id', api.http(api.issues.destroy));
+
     // ## Settings
     router.get('/settings', api.http(api.settings.browse));
     router.get('/settings/:key', api.http(api.settings.read));
@@ -86,10 +94,6 @@ apiRoutes = function (middleware) {
     // ## Uploads
     router.post('/uploads', middleware.busboy, api.http(api.uploads.add));
     router.post('/uploads/pdf', middleware.busboy, api.http(api.uploads.addPdf));
-
-    // ## Issues
-    router.get('/issues', api.http(api.issues.browse));
-    router.post('/issues', api.http(api.issues.add));
 
     return router;
 };

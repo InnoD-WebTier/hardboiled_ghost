@@ -1,57 +1,20 @@
-var IssuesNewController = Ember.Controller.extend({
+import IssueEditorControllerMixin from 'ghost/mixins/issue-editor-controller-base';
+
+var IssueEditorNewController = Ember.ObjectController.extend(IssueEditorControllerMixin, {
     actions: {
-      save: function() {
-      },
-
-      setPdf: function (pdf) {
-        var self = this,
-            issue = this.get('model');
-
-        Ember.Logger.log('calling set pdf');
-        Ember.Logger.log(pdf);
-
-        issue.set('pdf', pdf);
-        issue.set('title', 'post_rand_' + Math.round(Math.random() * 100));
-        issue.set('status', 'draft');
-
-        Ember.Logger.log('saving');
-        Ember.Logger.log(issue);
-
-        return issue.save().then(function (model) {
-          Ember.Logger.log("successfully saved!");
-          return model;
-        }).catch(function (errors) {
-          Ember.Logger.log("error saving. :(");
-          Ember.Logger.log(errors);
-          return Ember.RSVP.reject(errors);
-        });
-
-        // if (this.get('isNew')) {
-        //   return;
-        // }
-        //
-        // this.get('model').save().catch(function (errors) {
-        //   self.showErrors(errors);
-        //   self.get('model').rollback();
-        // });
-      },
-
-      clearCoverImage: function () {
-        var self = this;
-
-        Ember.Logger.log('clearing pdf');
-        this.set('pdf', '');
-
-        // if (this.get('isNew')) {
-        //   return;
-        // }
-        //
-        // this.get('model').save().catch(function (errors) {
-        //   self.showErrors(errors);
-        //   self.get('model').rollback();
-        // });
-      },
-    },
+        /**
+          * Redirect to issue_editor.edit after the first save
+          */
+        save: function(pdf) {
+            var self = this;
+            this._super(pdf).then(function (model) {
+                if (model.get('id')) {
+                    self.transitionToRoute('issue_editor.edit', model);
+                }
+            });
+        }
+    }
 });
 
-export default IssuesNewController;
+export default IssueEditorNewController;
+

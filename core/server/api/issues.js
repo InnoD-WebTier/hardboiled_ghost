@@ -3,6 +3,7 @@
 var Promise         = require('bluebird'),
     _               = require('lodash'),
     dataProvider    = require('../models'),
+    errors          = require('../errors'),
     utils           = require('./utils'),
 
     docName         = 'issues',
@@ -54,6 +55,37 @@ issues = {
     },
 
     /**
+     * ### Read
+     * Find a post, by ID or Slug
+     *
+     * @public
+     * @param {{id_or_slug (required), context, status, include, ...}} options
+     * @return {Promise(Post)} Post
+     */
+    read: function read(options) {
+        var attrs = ['id', 'slug', 'status'],
+            data = _.pick(options, attrs);
+        options = _.omit(options, attrs);
+
+        // only published posts if no user is present
+        if (!(options.context && options.context.user)) {
+            data.status = 'published';
+        }
+
+        if (options.include) {
+            options.include = prepareInclude(options.include);
+        }
+
+        return dataProvider.Issue.findOne(data, options).then(function (result) {
+            if (result) {
+                return {issues: [result.toJSON()]};
+            }
+
+            return Promise.reject(new errors.NotFoundError('Issue not found.'));
+        });
+    },
+
+    /**
      * ### Add
      * Create a new post along with any tags
      *
@@ -70,21 +102,53 @@ issues = {
             options.include = prepareInclude(options.include);
           }
 
-          console.log(checkedIssueData.issues[0]);
-
           return dataProvider.Issue.add(checkedIssueData.issues[0], options);
         }).then(function (result) {
-          var issue = result.toJSON();
+            var issue = result.toJSON();
 
-          console.log(issue);
-
-          // if (issue.status === 'published') {
-          //   // When creating a new post that is published right now, signal the change
-          //   post.statusChanged = true;
-          // }
-          return {issues: [issue]};
+            // if (issue.status === 'published') {
+            //   // When creating a new post that is published right now, signal the change
+            //   post.statusChanged = true;
+            // }
+            return {issues: [issue]};
         });
     },
+
+    /**
+     * ### Destroy
+     * Delete a issue, cleans up tag relations, but not unused tags
+     *
+     * @public
+     * @param {{id (required), context,...}} options
+     * @return {Promise(Issue)} Deleted Issue
+     */
+    destroy: function destroy(options) {
+      //TODO
+      // return canThis(options.context).destroy.issue(options.id).then(function () {
+
+      return issues.read(options).then(function (result) {
+        var markedIssue = result.issues[0];
+        options = _.extend({
+          pdf: markedIssue.pdf
+        }, options);
+
+        return dataProvider.Issue.destroy(options).then(function () {
+          var deletedObj = result;
+
+          if (deletedObj.issues) {
+              _.each(deletedObj.issues, function (issue) {
+                  issue.statusChanged = true;
+              });
+          }
+
+          return deletedObj;
+        });
+      });
+
+      // }, function () {
+      //     return Promise.reject(new errors.NoPermissionError('You do not have permission to remove issues.'));
+      // });
+    }
 
 };
 

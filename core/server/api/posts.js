@@ -146,13 +146,9 @@ posts = {
                     options.include = prepareInclude(options.include);
                 }
 
-                console.log(checkedPostData.posts[0]);
-
                 return dataProvider.Post.add(checkedPostData.posts[0], options);
             }).then(function (result) {
                 var post = result.toJSON();
-
-                console.log(result);
 
                 if (post.status === 'published') {
                     // When creating a new post that is published right now, signal the change

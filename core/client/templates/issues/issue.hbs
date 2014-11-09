@@ -1,11 +1,14 @@
 <header class="post-preview-header clearfix">
   {{#link-to "issues" tagName="button" class="btn btn-default btn-back"}}Back{{/link-to}}
-  <h2 class="page-title">Issue</h2>
+  <h2 class="page-title">Issue Preview</h2>
+  <section class="post-controls">
+    {{#link-to "issue_editor.edit" this class="btn btn-default post-edit"}}Edit{{/link-to}}
+  </section>
 </header>
 
 {{#view "content-preview-content-view" tagName="section"}}
   <div class="wrapper">
     <h1>{{title}}</h1>
-    <p>{{pdf}}</p>
+    <a href="{{hb-issue-pdf-url}}" target="_blank">View Issue</a>
   </div>
 {{/view}}
