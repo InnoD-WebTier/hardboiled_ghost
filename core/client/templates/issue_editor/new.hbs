@@ -3,8 +3,8 @@
   <h2 class="page-title">New Issue</h2>
 </header>
 
-<div class="page-content">
-  <section class="issue-content js-issue-content">
+<div class="settings-content">
+  <div class="content">
     <fieldset class="issue-details">
 
         <div class="form-group">
@@ -20,23 +20,9 @@
         </div>
 
         <div class="form-group">
-          <a class="btn btn-default btn-blue" target="_blank" href="{{hb-issue-pdf-url}}">View PDF</a>
+          {{hb-pdf-uploader uploaded="save" canceled="clear"}}
         </div>
 
-        <div class="issue-articles-list">
-          {{outlet "issue-articles-list"}}
-        </div>
-
-        <div class="form-group">
-          {{hb-new-article-buttons}}
-        </div>
-
-        <div class="form-group">
-          <button class="btn btn-default btn-red" {{action "openModal" "delete-issue" this}}>Delete Issue</button>
-        </div>
     </fieldset>
-  </section>
-  <section class="article-content js-article-content">
-    {{outlet}}
-  </section>
+  </div>
 </div>

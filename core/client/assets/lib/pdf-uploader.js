@@ -5,8 +5,7 @@ var UploadUi,
     Ghost = ghostPaths();
 
 UploadUi = function ($upload_button, settings) {
-    var $url = '<div class="js-url"><input class="url js-upload-url" type="url" placeholder="http://"/></div>',
-        $cancel = '<a class="image-cancel js-cancel" title="Delete"><span class="hidden">Delete</span></a>',
+    var $cancel = '<button class="btn btn-default btn-red js-cancel" title="Delete"><span class="hidden">Delete</span></button>',
         $progress =  $('<div />', {
             'class' : 'js-upload-progress progress progress-success active',
             'role': 'progressbar',
@@ -14,16 +13,11 @@ UploadUi = function ($upload_button, settings) {
             'aria-valuemax': '100'
         }).append($('<div />', {
             'class': 'js-upload-progress-bar bar',
-            'style': 'width:0%'
+            'style': 'width: 0%'
         }));
 
     $.extend(this, {
         complete: function (result) {
-          $('<a/>').addClass('btn')
-            .addClass('btn-blue')
-            .attr('href', result)
-            .text(result)
-            .appendTo('#submit-div');
           $upload_button.trigger('uploadsuccess', [result]);
         },
 
@@ -32,20 +26,22 @@ UploadUi = function ($upload_button, settings) {
 
             $upload_button.find('.js-fileupload').fileupload().fileupload('option', {
                 url: Ghost.apiRoot + '/uploads/pdf',
-                autoupload: false,
                 add: function (e, data) {
-                    /*jshint unused:false*/
-                  $.each(data.files, function(index, file) {
-                    var node = $('<p/>')
-                      .appendTo('#submit-div').text(file.name);
-                  });
-                  data.context = $('<button/>').text('Upload')
-                    .addClass('btn')
-                    .addClass('btn-default')
-                    .appendTo('#submit-div')
-                    .click(function() {
-                      data.submit();
-                    });
+                  /*jshint unused:false*/
+                  $('.js-upload-button').prop('disabled', true);
+                  data.submit();
+
+                  // $.each(data.files, function(index, file) {
+                  //   var node = $('<p/>')
+                  //     .appendTo('#submit-div').text(file.name);
+                  // });
+                  // data.context = $('<button/>').text('Upload')
+                  //   .addClass('btn')
+                  //   .addClass('btn-default')
+                  //   .appendTo('#submit-div')
+                  //   .click(function() {
+                  //     data.submit();
+                  //   });
                 },
                 progressall: function (e, data) {
                     /*jshint unused:false*/
@@ -83,89 +79,9 @@ UploadUi = function ($upload_button, settings) {
             });
         },
 
-//         buildExtras: function () {
-//             if (!$upload_button.find('span.media')[0]) {
-//                 $upload_button.prepend('<span class="media"><span class="hidden">Image Upload</span></span>');
-//             }
-//             if (!$upload_button.find('div.description')[0]) {
-//                 $upload_button.append('<div class="description">Add image</div>');
-//             }
-//             if (!$upload_button.find('div.js-fail')[0]) {
-//                 $upload_button.append('<div class="js-fail failed" style="display: none">Something went wrong :(</div>');
-//             }
-//             if (!$upload_button.find('button.js-fail')[0]) {
-//                 $upload_button.append('<button class="js-fail btn btn-green" style="display: none">Try Again</button>');
-//             }
-//             if (!$upload_button.find('a.image-url')[0]) {
-//                 $upload_button.append('<a class="image-url" title="Add image from URL"><span class="hidden">URL</span></a>');
-//             }
-// //                if (!$upload_button.find('a.image-webcam')[0]) {
-// //                    $upload_button.append('<a class="image-webcam" title="Add image from webcam"><span class="hidden">Webcam</span></a>');
-// //                }
-//         },
-
-        // removeExtras: function () {
-        //     $upload_button.find('span.media, div.js-upload-progress, a.image-url, a.image-upload, a.image-webcam, div.js-fail, button.js-fail, a.js-cancel').remove();
-        // },
-
         init: function () {
             var self = this;
-            //This is the start point if no image exists
-            // $upload_button.find('img.js-upload-target').css({'display': 'none'});
-            // $upload_button.removeClass('pre-image-uploader image-uploader-url').addClass('image-uploader');
-            // this.removeExtras();
-            // this.buildExtras();
             this.bindFileUpload();
-            if (!settings.fileStorage) {
-                self.initUrl();
-                return;
-            }
-            $upload_button.find('a.image-url').on('click', function () {
-                self.initUrl();
-            });
-        },
-        initUrl: function () {
-            var self = this, val;
-            if (settings.fileStorage) {
-                $upload_button.append($cancel);
-            }
-            $upload_button.find('.js-cancel').on('click', function () {
-                $upload_button.find('.js-url').remove();
-                $upload_button.find('.js-fileupload').removeClass('right');
-                self.removeExtras();
-                self.initWithupload_button();
-            });
-
-            $upload_button.find('div.description').before($url);
-
-            if (settings.editor) {
-                $upload_button.find('div.js-url').append('<button class="btn btn-blue js-button-accept">Save</button>');
-            }
-
-            $upload_button.find('.js-button-accept').on('click', function () {
-                val = $upload_button.find('.js-upload-url').val();
-                $upload_button.find('div.description').hide();
-                $upload_button.find('.js-fileupload').removeClass('right');
-                $upload_button.find('.js-url').remove();
-                if (val === '') {
-                    $upload_button.trigger('uploadsuccess', 'http://');
-                    self.initWithupload_button();
-                } else {
-                    self.complete(val);
-                }
-            });
-
-            // Only show the toggle icon if there is a upload_button mode to go back to
-            if (settings.fileStorage !== false) {
-                $upload_button.append('<a class="image-upload" title="Add image"><span class="hidden">Upload</span></a>');
-            }
-
-            $upload_button.find('a.image-upload').on('click', function () {
-                $upload_button.find('.js-url').remove();
-                $upload_button.find('.js-fileupload').removeClass('right');
-                self.initWithupload_button();
-            });
-
         },
     });
 };

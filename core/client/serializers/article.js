@@ -1,16 +1,25 @@
 import ApplicationSerializer from 'ghost/serializers/application';
 
-var IssueSerializer = ApplicationSerializer.extend(DS.EmbeddedRecordsMixin, {
+var ArticleSerializer = ApplicationSerializer.extend(DS.EmbeddedRecordsMixin, {
     // settings for the EmbeddedRecordsMixin.
     attrs: {
-        tags: { embedded: 'always' },
+        tags: { embedded: 'always' }
+    },
+
+    normalize: function (type, hash) {
+        // this is to enable us to still access the raw author_id
+        // without requiring an extra get request (since it is an
+        // async relationship).
+        hash.author_id = hash.author;
+
+        return this._super(type, hash);
     },
 
     extractSingle: function (store, primaryType, payload) {
         var root = this.keyForAttribute(primaryType.typeKey),
             pluralizedRoot = Ember.String.pluralize(primaryType.typeKey);
 
-        // make payload { post: { title: '', tags: [obj, obj], etc. } }.
+        // make payload { article: { title: '', tags: [obj, obj], etc. } }.
         // this allows ember-data to pull the embedded tags out again,
         // in the function `updatePayloadWithEmbeddedHasMany` of the
         // EmbeddedRecordsMixin (line: `if (!partial[attribute])`):
@@ -45,9 +54,11 @@ var IssueSerializer = ApplicationSerializer.extend(DS.EmbeddedRecordsMixin, {
 
         // Don't ever pass uuid's
         delete data.uuid;
+        // Don't send HTML
+        delete data.html;
 
         hash[root] = [data];
     }
 });
 
-export default IssueSerializer;
+export default ArticleSerializer;

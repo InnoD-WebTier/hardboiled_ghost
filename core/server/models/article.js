@@ -19,7 +19,6 @@ Article = ghostBookshelf.Model.extend({
     defaults: function () {
         return {
             uuid: uuid.v4(),
-            status: 'draft'
         };
     },
 
@@ -29,9 +28,6 @@ Article = ghostBookshelf.Model.extend({
         ghostBookshelf.Model.prototype.initialize.apply(this, arguments);
 
         this.on('saved', function (model, attributes, options) {
-            if (model.get('status') === 'published') {
-                xmlrpc.ping(model.attributes);
-            }
             return self.updateTags(model, attributes, options);
         });
     },
@@ -65,20 +61,10 @@ Article = ghostBookshelf.Model.extend({
         // this.set('title', this.sanitize('title').trim());
         this.set('title', this.get('title').trim());
 
-        if ((this.hasChanged('status') || !this.get('published_at')) && this.get('status') === 'published') {
-            if (!this.get('published_at')) {
-                this.set('published_at', new Date());
-            }
-            // This will need to go elsewhere in the API layer.
-            if (!this.get('published_by')) {
-                this.set('published_by', this.contextUser(options));
-            }
-        }
-
         if (this.hasChanged('slug') || !this.get('slug')) {
             // Pass the new slug through the generator to strip illegal characters, detect duplicates
             return ghostBookshelf.Model.generateSlug(Article, this.get('slug') || this.get('title'),
-                    {status: 'all', transacting: options.transacting})
+                    {transacting: options.transacting})
                 .then(function (slug) {
                     self.set({slug: slug});
                 });
@@ -179,18 +165,9 @@ Article = ghostBookshelf.Model.extend({
         return this.belongsTo('User', 'updated_by');
     },
 
-    published_by: function () {
-        return this.belongsTo('User', 'published_by');
-    },
-
     tags: function () {
         return this.belongsToMany('Tag');
     },
-
-
-//     fields: function () {
-//         return this.morphMany('AppField', 'relatable');
-//     },
 
     toJSON: function (options) {
         var attrs = ghostBookshelf.Model.prototype.toJSON.call(this, options);
@@ -216,7 +193,7 @@ Article = ghostBookshelf.Model.extend({
             validOptions = {
                 findAll: ['withRelated'],
                 findOne: ['importing', 'withRelated'],
-                findPage: ['page', 'limit', 'status', 'staticPages'],
+                findPage: ['issue_id', 'page', 'limit', 'status', 'staticPages'],
                 add: ['importing']
             };
 
@@ -244,6 +221,229 @@ Article = ghostBookshelf.Model.extend({
         return filteredData;
     },
 
+    /**
+     * #### findPage
+     * Find results by page - returns an object containing the
+     * information about the request (page, limit), along with the
+     * info needed for pagination (pages, total).
+     *
+     * **response:**
+     *
+     *     {
+     *         articles: [
+     *         {...}, {...}, {...}
+     *     ],
+     *     page: __,
+     *     limit: __,
+     *     pages: __,
+     *     total: __
+     *     }
+     *
+     * @param {Object} options
+     */
+    findPage: function (options) {
+        options = options || {};
+
+        var articleCollection = Articles.forge(),
+            tagInstance = options.tag !== undefined ? ghostBookshelf.model('Tag').forge({slug: options.tag}) : false,
+            authorInstance = options.author !== undefined ? ghostBookshelf.model('User').forge({slug: options.author}) : false,
+            issueInstance = options.issue_id !== undefined ? ghostBookshelf.model('Issue').forge({id: options.issue_id}) : false;
+
+        if (options.limit) {
+            options.limit = parseInt(options.limit, 10) || 15;
+        }
+
+        if (options.page) {
+            options.page = parseInt(options.page, 10) || 1;
+        }
+
+        options = this.filterOptions(options, 'findPage');
+
+        // Set default settings for options
+        options = _.extend({
+            page: 1, // pagination page
+            limit: 15,
+            staticPages: false, // include static pages
+            where: {}
+        }, options);
+
+        // TODO
+        // if (options.staticPages !== 'all') {
+        //     // convert string true/false to boolean
+        //     if (!_.isBoolean(options.staticPages)) {
+        //         options.staticPages = options.staticPages === 'true' || options.staticPages === '1' ? true : false;
+        //     }
+        //     options.where.page = options.staticPages;
+        // }
+
+        // TODO
+        // // Unless `all` is passed as an option, filter on
+        // // the status provided.
+        // if (options.status !== 'all') {
+        //     // make sure that status is valid
+        //     options.status = _.indexOf(['published', 'draft'], options.status) !== -1 ? options.status : 'published';
+        //     options.where.status = options.status;
+        // }
+
+        // If there are where conditionals specified, add those
+        // to the query.
+        if (options.where) {
+            articleCollection.query('where', options.where);
+        }
+
+        // Add related objects
+        options.withRelated = _.union(['tags'], options.include);
+
+        // If a query param for a tag is attached
+        // we need to fetch the tag model to find its id
+        function fetchTagQuery() {
+            if (tagInstance) {
+                return tagInstance.fetch();
+            }
+            return false;
+        }
+
+        function fetchAuthorQuery() {
+            if (authorInstance) {
+                return authorInstance.fetch();
+            }
+            return false;
+        }
+
+        function fetchIssueQuery() {
+            if (issueInstance) {
+                return issueInstance.fetch();
+            }
+            return false;
+        }
+
+        return Promise.join(fetchTagQuery(), fetchAuthorQuery(), fetchIssueQuery())
+
+            // Set the limit & offset for the query, fetching
+            // with the opts (to specify any eager relations, etc.)
+            // Omitting the `page`, `limit`, `where` just to be sure
+            // aren't used for other purposes.
+            .then(function () {
+                // If we have a tag instance we need to modify our query.
+                // We need to ensure we only select articles that contain
+                // the tag given in the query param.
+                if (tagInstance) {
+                    articleCollection
+                        .query('join', 'articles_tags', 'articles_tags.article_id', '=', 'articles.id')
+                        .query('where', 'articles_tags.tag_id', '=', tagInstance.id);
+                }
+
+                if (authorInstance) {
+                    articleCollection
+                        .query('where', 'author_id', '=', authorInstance.id);
+                }
+
+                if (issueInstance) {
+                    articleCollection
+                        .query('where', 'issue_id', '=', issueInstance.id);
+                }
+
+                return articleCollection
+                    .query('limit', options.limit)
+                    .query('offset', options.limit * (options.page - 1))
+                    .query('orderBy', 'status', 'ASC')
+                    .query('orderBy', 'published_at', 'DESC')
+                    .query('orderBy', 'updated_at', 'DESC')
+                    .fetch(_.omit(options, 'page', 'limit'));
+            })
+
+            // Fetch pagination information
+            .then(function () {
+                var qb,
+                    tableName = _.result(articleCollection, 'tableName'),
+                    idAttribute = _.result(articleCollection, 'idAttribute');
+
+                // After we're done, we need to figure out what
+                // the limits are for the pagination values.
+                qb = ghostBookshelf.knex(tableName);
+
+                if (options.where) {
+                    qb.where(options.where);
+                }
+
+                if (tagInstance) {
+                    qb.join('articles_tags', 'articles_tags.article_id', '=', 'articles.id');
+                    qb.where('articles_tags.tag_id', '=', tagInstance.id);
+                }
+                if (authorInstance) {
+                    qb.where('author_id', '=', authorInstance.id);
+                }
+                if (issueInstance) {
+                    qb.where('issue_id', '=', issueInstance.id);
+                }
+
+                return qb.count(tableName + '.' + idAttribute + ' as aggregate');
+            })
+
+            // Format response of data
+            .then(function (resp) {
+                var totalArticles = parseInt(resp[0].aggregate, 10),
+                    calcPages = Math.ceil(totalArticles / options.limit),
+                    pagination = {},
+                    meta = {},
+                    data = {};
+
+                pagination.page = options.page;
+                pagination.limit = options.limit;
+                pagination.pages = calcPages === 0 ? 1 : calcPages;
+                pagination.total = totalArticles;
+                pagination.next = null;
+                pagination.prev = null;
+
+                // Pass include to each model so that toJSON works correctly
+                if (options.include) {
+                    _.each(articleCollection.models, function (item) {
+                        item.include = options.include;
+                    });
+                }
+
+                data.articles = articleCollection.toJSON();
+                data.meta = meta;
+                meta.pagination = pagination;
+
+                if (pagination.pages > 1) {
+                    if (pagination.page === 1) {
+                        pagination.next = pagination.page + 1;
+                    } else if (pagination.page === pagination.pages) {
+                        pagination.prev = pagination.page - 1;
+                    } else {
+                        pagination.next = pagination.page + 1;
+                        pagination.prev = pagination.page - 1;
+                    }
+                }
+
+                if (tagInstance) {
+                    meta.filters = {};
+                    if (!tagInstance.isNew()) {
+                        meta.filters.tags = [tagInstance.toJSON()];
+                    }
+                }
+
+                if (authorInstance) {
+                    meta.filters = {};
+                    if (!authorInstance.isNew()) {
+                        meta.filters.author = authorInstance.toJSON();
+                    }
+                }
+
+                if (issueInstance) {
+                    meta.filters = {};
+                    if (!issueInstance.isNew()) {
+                        meta.filters.issue = issueInstance.toJSON();
+                    }
+                }
+
+                return data;
+            })
+            .catch(errors.logAndThrowError);
+    },
+
+
     // ## Model Data Functions
 
     /**
@@ -258,204 +458,6 @@ Article = ghostBookshelf.Model.extend({
         return ghostBookshelf.Model.findAll.call(this, options);
     },
 
-    // TODO: need paging for this, but not right now
-    // /**
-    //  * #### findPage
-    //  * Find results by page - returns an object containing the
-    //  * information about the request (page, limit), along with the
-    //  * info needed for pagination (pages, total).
-    //  *
-    //  * **response:**
-    //  *
-    //  *     {
-    //  *         articles: [
-    //  *         {...}, {...}, {...}
-    //  *     ],
-    //  *     page: __,
-    //  *     limit: __,
-    //  *     pages: __,
-    //  *     total: __
-    //  *     }
-    //  *
-    //  * @param {Object} options
-    //  */
-    // findPage: function (options) {
-    //     options = options || {};
-    //
-    //     var articleCollection = Articles.forge(),
-    //         tagInstance = options.tag !== undefined ? ghostBookshelf.model('Tag').forge({slug: options.tag}) : false,
-    //         authorInstance = options.author !== undefined ? ghostBookshelf.model('User').forge({slug: options.author}) : false;
-    //
-    //     if (options.limit) {
-    //         options.limit = parseInt(options.limit, 10) || 15;
-    //     }
-    //
-    //     if (options.page) {
-    //         options.page = parseInt(options.page, 10) || 1;
-    //     }
-    //
-    //     options = this.filterOptions(options, 'findPage');
-    //
-    //     // Set default settings for options
-    //     options = _.extend({
-    //         page: 1, // pagination page
-    //         limit: 15,
-    //         staticPages: false, // include static pages
-    //         status: 'published',
-    //         where: {}
-    //     }, options);
-    //
-    //     if (options.staticPages !== 'all') {
-    //         // convert string true/false to boolean
-    //         if (!_.isBoolean(options.staticPages)) {
-    //             options.staticPages = options.staticPages === 'true' || options.staticPages === '1' ? true : false;
-    //         }
-    //         options.where.page = options.staticPages;
-    //     }
-    //
-    //     // Unless `all` is passed as an option, filter on
-    //     // the status provided.
-    //     if (options.status !== 'all') {
-    //         // make sure that status is valid
-    //         options.status = _.indexOf(['published', 'draft'], options.status) !== -1 ? options.status : 'published';
-    //         options.where.status = options.status;
-    //     }
-    //
-    //     // If there are where conditionals specified, add those
-    //     // to the query.
-    //     if (options.where) {
-    //         articleCollection.query('where', options.where);
-    //     }
-    //
-    //     // Add related objects
-    //     options.withRelated = _.union(['tags', 'fields'], options.include);
-    //
-    //     // If a query param for a tag is attached
-    //     // we need to fetch the tag model to find its id
-    //     function fetchTagQuery() {
-    //         if (tagInstance) {
-    //             return tagInstance.fetch();
-    //         }
-    //         return false;
-    //     }
-    //
-    //     function fetchAuthorQuery() {
-    //         if (authorInstance) {
-    //             return authorInstance.fetch();
-    //         }
-    //         return false;
-    //     }
-    //
-    //     return Promise.join(fetchTagQuery(), fetchAuthorQuery())
-    //
-    //         // Set the limit & offset for the query, fetching
-    //         // with the opts (to specify any eager relations, etc.)
-    //         // Omitting the `page`, `limit`, `where` just to be sure
-    //         // aren't used for other purposes.
-    //         .then(function () {
-    //             // If we have a tag instance we need to modify our query.
-    //             // We need to ensure we only select article that contain
-    //             // the tag given in the query param.
-    //             if (tagInstance) {
-    //                 articleCollection
-    //                     .query('join', 'articles_tags', 'articles_tags.article_id', '=', 'articles.id')
-    //                     .query('where', 'articles_tags.tag_id', '=', tagInstance.id);
-    //             }
-    //
-    //             if (authorInstance) {
-    //                 articleCollection
-    //                     .query('where', 'author_id', '=', authorInstance.id);
-    //             }
-    //             return articleCollection
-    //                 .query('limit', options.limit)
-    //                 .query('offset', options.limit * (options.page - 1))
-    //                 .query('orderBy', 'status', 'ASC')
-    //                 .query('orderBy', 'published_at', 'DESC')
-    //                 .query('orderBy', 'updated_at', 'DESC')
-    //                 .fetch(_.omit(options, 'page', 'limit'));
-    //         })
-    //
-    //         // Fetch pagination information
-    //         .then(function () {
-    //             var qb,
-    //                 tableName = _.result(articleCollection, 'tableName'),
-    //                 idAttribute = _.result(articleCollection, 'idAttribute');
-    //
-    //             // After we're done, we need to figure out what
-    //             // the limits are for the pagination values.
-    //             qb = ghostBookshelf.knex(tableName);
-    //
-    //             if (options.where) {
-    //                 qb.where(options.where);
-    //             }
-    //
-    //             if (tagInstance) {
-    //                 qb.join('articles_tags', 'articles_tags.article_id', '=', 'articles.id');
-    //                 qb.where('articles_tags.tag_id', '=', tagInstance.id);
-    //             }
-    //             if (authorInstance) {
-    //                 qb.where('author_id', '=', authorInstance.id);
-    //             }
-    //
-    //             return qb.count(tableName + '.' + idAttribute + ' as aggregate');
-    //         })
-    //
-    //         // Format response of data
-    //         .then(function (resp) {
-    //             var totalArticles = parseInt(resp[0].aggregate, 10),
-    //                 calcPages = Math.ceil(totalArticles / options.limit),
-    //                 pagination = {},
-    //                 meta = {},
-    //                 data = {};
-    //
-    //             pagination.page = options.page;
-    //             pagination.limit = options.limit;
-    //             pagination.pages = calcPages === 0 ? 1 : calcPages;
-    //             pagination.total = totalArticles;
-    //             pagination.next = null;
-    //             pagination.prev = null;
-    //
-    //             // Pass include to each model so that toJSON works correctly
-    //             if (options.include) {
-    //                 _.each(articleCollection.models, function (item) {
-    //                     item.include = options.include;
-    //                 });
-    //             }
-    //
-    //             data.articles = articleCollection.toJSON();
-    //             data.meta = meta;
-    //             meta.pagination = pagination;
-    //
-    //             if (pagination.pages > 1) {
-    //                 if (pagination.page === 1) {
-    //                     pagination.next = pagination.page + 1;
-    //                 } else if (pagination.page === pagination.pages) {
-    //                     pagination.prev = pagination.page - 1;
-    //                 } else {
-    //                     pagination.next = pagination.page + 1;
-    //                     pagination.prev = pagination.page - 1;
-    //                 }
-    //             }
-    //
-    //             if (tagInstance) {
-    //                 meta.filters = {};
-    //                 if (!tagInstance.isNew()) {
-    //                     meta.filters.tags = [tagInstance.toJSON()];
-    //                 }
-    //             }
-    //
-    //             if (authorInstance) {
-    //                 meta.filters = {};
-    //                 if (!authorInstance.isNew()) {
-    //                     meta.filters.author = authorInstance.toJSON();
-    //                 }
-    //             }
-    //
-    //             return data;
-    //         })
-    //         .catch(errors.logAndThrowError);
-    // },
-
     /**
      * ### Find One
      * @extends ghostBookshelf.Model.findOne to handle article status
@@ -464,13 +466,8 @@ Article = ghostBookshelf.Model.extend({
     findOne: function (data, options) {
         options = options || {};
 
-        data = _.extend({
-            status: 'published'
-        }, data || {});
-
-        if (data.status === 'all') {
-            delete data.status;
-        }
+        // We don't need statuses for articles
+        delete data.status;
 
         // Add related objects
         options.withRelated = _.union(['tags'], options.include);
@@ -488,7 +485,7 @@ Article = ghostBookshelf.Model.extend({
         options = options || {};
 
         return ghostBookshelf.Model.edit.call(this, data, options).then(function (article) {
-            return self.findOne({status: 'all', id: options.id}, options)
+            return self.findOne({id: options.id}, options)
                 .then(function (found) {
                     if (found) {
                         // Pass along the updated attributes for checking status changes
@@ -509,7 +506,7 @@ Article = ghostBookshelf.Model.extend({
         options = options || {};
 
         return ghostBookshelf.Model.add.call(this, data, options).then(function (article) {
-            return self.findOne({status: 'all', id: article.id}, options);
+            return self.findOne({id: article.id}, options);
         });
     },
 

@@ -42,7 +42,7 @@ var IssueEditorControllerMixin = Ember.Mixin.create({
         issue.set('title', this.get('title'));
         issue.set('published_at', this.get('published_at'));
         issue.set('pdf', pdf);
-        //TODO
+        // TODO
         issue.set('status', 'draft');
 
         return issue.save().then(function (model) {

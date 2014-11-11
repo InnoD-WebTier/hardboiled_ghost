@@ -1,0 +1,14 @@
+<section class="js-content-list">
+  <header class="">
+    <section class="content-filter">
+      <small>Articles</small>
+    </section>
+  </header>
+  <ol class="posts-list">
+    {{! itemController="issues/issue" }}
+    {{#each itemView="article-item-view" itemTagName="li"}}
+    {{! {{#link-to "issues.issue" this class="permalink" title="Edit this post"}}
+    <h3 class="entry-title">{{title}}</h3>
+    {{/each}}
+  </ol>
+</section>

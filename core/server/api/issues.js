@@ -115,6 +115,46 @@ issues = {
     },
 
     /**
+     * ### Edit
+     * Update properties of a post
+     *
+     * @public
+     * @param {Post} object Post or specific properties to update
+     * @param {{id (required), context, include,...}} options
+     * @return {Promise(Post)} Edited Post
+     */
+    edit: function edit(object, options) {
+        // TODO
+        // return canThis(options.context).edit.post(options.id).then(function () {
+
+      return utils.checkObject(object, docName).then(function (checkedIssueData) {
+        if (options.include) {
+          options.include = prepareInclude(options.include);
+        }
+
+        return dataProvider.Issue.edit(checkedIssueData.issues[0], options);
+      }).then(function (result) {
+        if (result) {
+          var issue = result.toJSON();
+
+          // If previously was not published and now is (or vice versa), signal the change
+          issue.statusChanged = false;
+          if (result.updated('status') !== result.get('status')) {
+            issue.statusChanged = true;
+          }
+          return {issues: [issue]};
+        }
+
+        return Promise.reject(new errors.NotFoundError('Issue not found.'));
+      });
+
+        // }, function () {
+        //     return Promise.reject(new errors.NoPermissionError('You do not have permission to edit posts.'));
+        // });
+    },
+
+
+    /**
      * ### Destroy
      * Delete a issue, cleans up tag relations, but not unused tags
      *

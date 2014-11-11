@@ -1,27 +1,28 @@
 import ValidationEngine from 'ghost/mixins/validation-engine';
 import NProgressSaveMixin from 'ghost/mixins/nprogress-save';
 
-var Issue = DS.Model.extend(NProgressSaveMixin, ValidationEngine, {
-    validationType: 'issue',
+var Article = DS.Model.extend(NProgressSaveMixin, ValidationEngine, {
+    validationType: 'article',
 
     uuid: DS.attr('string'),
     title: DS.attr('string', {defaultValue: ''}),
     slug: DS.attr('string'),
+    markdown: DS.attr('string', {defaultValue: ''}),
+    html: DS.attr('string'),
     image: DS.attr('string'),
-    pdf: DS.attr('string'),
-    status: DS.attr('string', {defaultValue: 'draft'}),
+    pdf_start: DS.attr('number'),
+    pdf_end: DS.attr('number'),
+    issue: DS.belongsTo('issue', { async: true}),
+    issue_id: DS.attr('number'),
     language: DS.attr('string', {defaultValue: 'en_US'}),
     meta_title: DS.attr('string'),
     meta_description: DS.attr('string'),
+    author: DS.belongsTo('user',  { async: true }),
+    author_id: DS.attr('number'),
     updated_at: DS.attr('moment-date'),
-    updated_by: DS.belongsTo('user', { async: true }),
     published_at: DS.attr('moment-date'),
     published_by: DS.belongsTo('user', { async: true }),
-    articles: DS.hasMany('article', { async: true }),
     tags: DS.hasMany('tag', { embedded: 'always' }),
-    //## Computed issue properties
-    isPublished: Ember.computed.equal('status', 'published'),
-    isDraft: Ember.computed.equal('status', 'draft'),
 
     // remove client-generated tags, which have `id: null`.
     // Ember Data won't recognize/update them automatically
@@ -34,6 +35,10 @@ var Issue = DS.Model.extend(NProgressSaveMixin, ValidationEngine, {
         oldTags.invoke('deleteRecord');
     },
 
+    isAuthoredByUser: function (user) {
+        return parseInt(user.get('id'), 10) === parseInt(this.get('author_id'), 10);
+    }
+
 });
 
-export default Issue;
+export default Article;

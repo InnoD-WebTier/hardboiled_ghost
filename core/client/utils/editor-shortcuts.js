@@ -5,7 +5,6 @@ var shortcuts = {},
 //
 
 shortcuts[ctrlOrCmd + '+s'] = 'save';
-shortcuts[ctrlOrCmd + '+alt+p'] = 'publish';
 shortcuts['alt+shift+z'] = 'toggleZenMode';
 
 //

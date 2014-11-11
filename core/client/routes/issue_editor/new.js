@@ -1,7 +1,7 @@
 import styleBody from 'ghost/mixins/style-body';
 import loadingIndicator from 'ghost/mixins/loading-indicator';
 
-var IssuesNewRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin, styleBody, loadingIndicator, {
+var IssueEditorNewRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin, styleBody, loadingIndicator, {
   classNames: ['issues-new'],
 
   model: function() {
@@ -40,4 +40,4 @@ var IssuesNewRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin, styl
 
 });
 
-export default IssuesNewRoute;
+export default IssueEditorNewRoute;

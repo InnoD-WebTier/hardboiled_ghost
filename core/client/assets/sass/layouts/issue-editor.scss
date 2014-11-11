@@ -1,0 +1,41 @@
+.article-content {
+  position: absolute;
+  width: auto;
+  bottom: 0;
+  top: 0;
+  right: 0;
+  overflow: auto;
+  background: #fff;
+  margin-left: 15px;
+  border: none;
+}
+
+.issue-content {
+  position: absolute;
+  width: 600px;
+  bottom: 0;
+  top: 0;
+  right: 0;
+  left: 0;
+  overflow: auto;
+  background: #fff;
+  margin: 0 auto;
+  border: none;
+}
+
+.article-editor-header > section {
+  float: left;
+}
+
+.back-box {
+  height: 60px;
+  width: 80px;
+
+  .btn-back {
+    height: 60px;
+    width: 80px;
+    border: none;
+    border-right: 1px solid $lightbrown;
+    border-radius: 0;
+  }
+}

@@ -28,6 +28,14 @@ apiRoutes = function (middleware) {
     router.put('/issues/:id', api.http(api.issues.edit));
     router.del('/issues/:id', api.http(api.issues.destroy));
 
+    // ## Articles
+    router.get('/articles', api.http(api.articles.browse));
+    router.post('/articles', api.http(api.articles.add));
+    router.get('/articles/:id', api.http(api.articles.read));
+    router.get('/articles/slug/:slug', api.http(api.articles.read));
+    router.put('/articles/:id', api.http(api.articles.edit));
+    router.del('/articles/:id', api.http(api.articles.destroy));
+
     // ## Settings
     router.get('/settings', api.http(api.settings.browse));
     router.get('/settings/:key', api.http(api.settings.read));
