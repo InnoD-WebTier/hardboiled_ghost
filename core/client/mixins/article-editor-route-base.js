@@ -16,7 +16,8 @@ var ArticleEditorRouteBase = Ember.Mixin.create(styleBody, ShortcutsRoute, loadi
     codeMirrorShortcut: function (options) {
       this.get('controller.codemirror').shortcut(options.type);
     },
-    goBack: function() {
+    backToIssue: function() {
+      this.send('reRenderArticles');
       this.transitionTo('issue_editor.edit');
     },
   },

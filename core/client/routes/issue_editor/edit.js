@@ -8,31 +8,39 @@ var IssueEditorEditRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin
 
     issueId = Number(params.issue_id);
 
-    if (!_.isNumber(issueId) || !_.isFinite(issueId) || issueId % 1 !== 0 || issueId <= 0)
-      {
-        return this.transitionTo('error404', params.issue_id);
-      }
+    if (!_.isNumber(issueId) || !_.isFinite(issueId) || issueId % 1 !== 0 || issueId <= 0) {
+      return this.transitionTo('error404', params.issue_id);
+    }
 
-      return this.store.findById('issue', issueId).then(function (issue) {
-        return issue;
-      }).catch(function (errors) {
-        return self.transitionTo('issues.index');
-      });
+    issue = this.store.getById('issue', issueId);
+
+    if (issue) {
+      return issue;
+    }
+
+    return this.store.findById('issue', issueId).then(function (issue) {
+      return issue;
+    }).catch(function (errors) {
+      return self.transitionTo('issues.index');
+    });
 
   },
 
-  renderTemplate: function(controller, model) {
-    var self = this;
+  afterModel: function(model) {
+    this.renderArticleList(model);
+  },
 
-    this._super();
+  renderArticleList: function(_model) {
+    var self = this,
+        model = _model || this.modelFor('issue_editor.edit');
 
     this.store.find('article', {
       issue_id: model.get('id'),
     }).then(function (articles) {
-      self.render('issue-articles-list', {
+      self.render('articles', {
         into: 'issue_editor/edit',
-        outlet: 'issue-articles-list',
-        controller: 'issue-articles-list',
+        outlet: 'issue-article-list',
+        controller: 'articles',
         model: articles,
       });
     }).catch(function (errors) {
@@ -57,7 +65,10 @@ var IssueEditorEditRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin
     },
     deletePost: function () {
       this.send('openModal', 'delete-issue', this.get('controller.model'));
-    }
+    },
+    reRenderArticles: function () {
+      this.renderArticleList();
+    },
   }
 });
 

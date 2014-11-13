@@ -1,14 +1,14 @@
 import itemView from 'ghost/views/item-view';
 
-var IssueItemView = itemView.extend({
-    doubleClick: function () {
-        // this.get('controller').send('openEditor');
-    },
+var ArticleItemView = itemView.extend({
+  doubleClick: function () {
+    // this.get('controller').send('openEditor');
+  },
 
-    click: function () {
-        // this.get('controller').send('showIssueContent');
-    }
+  click: function () {
+    this.get('controller').send('showArticlePreview');
+  }
 
 });
 
-export default IssueItemView;
+export default ArticleItemView;

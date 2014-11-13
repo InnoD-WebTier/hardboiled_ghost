@@ -182,6 +182,8 @@ var ArticleEditorControllerMixin = Ember.Mixin.create(MarkerManager, {
     return !!this.get('model.isNew');
   }),
 
+  willGoBackToIssue: false,
+
   actions: {
     save: function () {
       var isNew = this.get('isNew'),
@@ -265,6 +267,11 @@ var ArticleEditorControllerMixin = Ember.Mixin.create(MarkerManager, {
 
     togglePreview: function (preview) {
       this.set('isPreview', preview);
+    },
+
+    backToIssue: function() {
+      this.set('willGoBackToIssue', true);
+      return true;
     },
   }
 });

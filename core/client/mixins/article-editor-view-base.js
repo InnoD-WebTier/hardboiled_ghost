@@ -52,9 +52,21 @@ var ArticleEditorViewMixin = Ember.Mixin.create({
         return scrollInfo.top * ratio;
     }),
 
+    showFullArticle: function() {
+      var parentView = this.get('parentView');
+
+      parentView.showingArticle = false;
+      parentView.showFullArticle();
+    }.on('didInsertElement'),
+
+    willGoBackToIssue: false,
+
     showIssue: function() {
-      this.get('parentView').showIssue();
+      if (this.get('controller.willGoBackToIssue')) {
+        this.get('parentView').showIssue();
+      }
     }.on('willDestroyElement'),
+
 });
 
 export default ArticleEditorViewMixin;

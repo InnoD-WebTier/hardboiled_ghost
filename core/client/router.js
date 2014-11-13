@@ -41,6 +41,7 @@ Router.map(function () {
   this.resource('issue_editor', function() {
     this.route('new', { path: '' });
     this.resource('issue_editor.edit', { path: ':issue_id' }, function() {
+      this.route('article', { path: 'article/:article_id' });
       this.resource('article_editor', function() {
         this.route('new', { path: '' });
         this.route('edit', { path: ':article_id' });

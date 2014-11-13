@@ -1,6 +1,8 @@
 <header class="article-editor-header">
     <section class="box back-box">
-      <button class="btn btn-default btn-back" {{action "goBack"}}>Back</button>
+      {{#view "article-editor-back-button" tagName="button" class="btn btn-default btn-back"}}
+        Back
+      {{/view}}
     </section>
     <section class="box entry-title">
         {{gh-trim-focus-input type="text" id="entry-title" placeholder="Your Article Title" value=titleScratch tabindex="1" focus=shouldFocusTitle}}

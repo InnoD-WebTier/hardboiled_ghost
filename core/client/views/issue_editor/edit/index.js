@@ -2,8 +2,8 @@ var IssueEditorEditIndexView = Ember.View.extend({
   classNames: ['article-editor-container'],
   tagName: 'section',
 
-  showArticle: function () {
-    this.get('parentView').showArticle();
+  showFullArticle: function () {
+    this.get('parentView').showFullArticle();
   }
 
 });
