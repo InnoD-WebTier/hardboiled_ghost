@@ -1,7 +1,7 @@
 TODO
 ====
 
-- Style
+- Style: Mag, Owen, Jon
   + Everything
     - Home page
     - Page 2/3/4/...
@@ -12,7 +12,8 @@ TODO
     - Issue page
     - Article page
     - Static page
-- Non-static about page
+
+- Non-static about page: Ben
 - Search
 - Carousel
 - Current Issue?
