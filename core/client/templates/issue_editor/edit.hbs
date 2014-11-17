@@ -7,33 +7,44 @@
   <section class="issue-content js-issue-content">
     <fieldset class="issue-details">
 
-        <div class="form-group">
-            <label>Issue Title</label>
-            {{gh-input class="issue-title" value=titleValue name="issue" focus-out="setTitle" placeholder="Title" selectOnClick="true" autocorrect="off"}}
-        </div>
+      <div class="form-group">
+        <label>Issue Title</label>
+        {{gh-input class="issue-title" value=titleValue name="issue" focus-out="setTitle" placeholder="Title" selectOnClick="true" autocorrect="off"}}
+      </div>
 
-        <div class="form-group">
-            <label>Publish Date</label>
-            <span class="input-icon icon-calendar">
-                {{gh-input class="issue-setting-date" value=publishedAtValue name="issue-setting-date" focus-out="setPublishedAt" placeholder=publishedAtPlaceholder stopEnterKeyDownPropagation="true"}}
-            </span>
-        </div>
+      <div class="form-group">
+        <label>Issue URL</label>
+        <span class="input-icon icon-link">
+          {{gh-input class="post-setting-slug" value=slugValue name="issue-setting-slug" focus-out="updateSlug" placeholder=slugPlaceholder selectOnClick="true" stopEnterKeyDownPropagation="true"}}
+        </span>
+      </div>
 
-        <div class="form-group">
-          <a class="btn btn-default btn-blue" target="_blank" href="{{hb-issue-pdf-url}}">View PDF</a>
-        </div>
+      <div class="form-group">
+        <label>Publish Date</label>
+        <span class="input-icon icon-calendar">
+          {{gh-input class="issue-setting-date" value=publishedAtValue name="issue-setting-date" focus-out="setPublishedAt" placeholder=publishedAtPlaceholder stopEnterKeyDownPropagation="true"}}
+        </span>
+      </div>
 
-        <div class="issue-article-list">
-          {{outlet "issue-article-list"}}
-        </div>
+      <div class="form-group">
+        <a class="btn btn-default btn-blue" target="_blank" href="{{hb-issue-pdf-url}}">View PDF</a>
+      </div>
 
-        <div class="form-group">
-          {{hb-new-article-buttons}}
-        </div>
+      <div class="form-group">
+        <button {{bind-attr class=":btn :btn-default model.isPublished:btn-red:btn-green" }} {{action "togglePublished"}}>{{#if model.isPublished}}Unpublish{{else}}Publish{{/if}} Issue</button>
+      </div>
 
-        <div class="form-group">
-          <button class="btn btn-default btn-red" {{action "openModal" "delete-issue" this}}>Delete Issue</button>
-        </div>
+      <div class="issue-article-list">
+        {{outlet "issue-article-list"}}
+      </div>
+
+      <div class="form-group">
+        {{hb-new-article-buttons}}
+      </div>
+
+      <div class="form-group">
+        <button class="btn btn-default btn-red" {{action "openModal" "delete-issue" this}}>Delete Issue</button>
+      </div>
     </fieldset>
   </section>
   <section class="article-content js-article-content">

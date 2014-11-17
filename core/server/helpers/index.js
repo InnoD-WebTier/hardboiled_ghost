@@ -90,6 +90,7 @@ coreHelpers.encode = function (context, str) {
 // context.
 //
 coreHelpers.page_url = function (context, block) {
+    debugger;
     /*jshint unused:false*/
     var url = config.paths.subdir;
 
@@ -160,6 +161,14 @@ coreHelpers.url = function (options) {
 
     if (schema.isPost(this)) {
         return config.urlForPost(api.settings, this, absolute);
+    }
+
+    if (schema.isIssue(this)) {
+        return Promise.resolve(config.urlFor('issue', {issue: this}, absolute));
+    }
+
+    if (schema.isArticle(this)) {
+        return Promise.resolve(config.urlFor('article', {article: this}, absolute));
     }
 
     if (schema.isTag(this)) {

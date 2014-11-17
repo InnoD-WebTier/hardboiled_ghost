@@ -146,8 +146,8 @@ Issue = ghostBookshelf.Model.extend({
     },
 
     // Relations
-    articles: function () {
-        return this.hasMany('Articles', 'issue_id');
+    issues: function () {
+        return this.hasMany('Issues', 'issue_id');
     },
 
     created_by: function () {
@@ -166,10 +166,6 @@ Issue = ghostBookshelf.Model.extend({
         return this.belongsToMany('Tag');
     },
 
-//     fields: function () {
-//         return this.morphMany('AppField', 'relatable');
-//     },
-
 }, {
 
     /**
@@ -185,7 +181,7 @@ Issue = ghostBookshelf.Model.extend({
             validOptions = {
                 findAll: ['withRelated'],
                 findOne: ['importing', 'withRelated'],
-                findPage: ['page', 'limit', 'status', 'staticPages'],
+                findYear: ['year', 'status'],
                 add: ['importing'],
                 destroy: ['pdf']
             };
@@ -215,6 +211,154 @@ Issue = ghostBookshelf.Model.extend({
     },
 
     // ## Model Data Functions
+
+    /**
+     * #### findYear
+     * Find results by year
+     *
+     * **response:**
+     *
+     *     {
+     *         issues: [
+     *         {...}, {...}, {...}
+     *     ],
+     *     year: __,
+     *     years: __,
+     *     }
+     *
+     * @param {Object} options
+     */
+    findYear: function (options) {
+        options = options || {};
+
+        var issueCollection = Issues.forge(),
+            tagInstance = options.tag !== undefined ? ghostBookshelf.model('Tag').forge({slug: options.tag}) : false;
+
+        var thisYear = new Date().getFullYear();
+        if (options.year) {
+            options.year = parseInt(options.year, 10) || thisYear;
+        }
+
+        options = this.filterOptions(options, 'findYear');
+
+        // Set default settings for options
+        options = _.extend({
+            year: thisYear,
+            where: {}
+        }, options);
+
+        // Unless `all` is passed as an option, filter on
+        // the status provided.
+        if (options.status !== 'all') {
+            // make sure that status is valid
+            options.status = _.indexOf(['published', 'draft'], options.status) !== -1 ? options.status : 'published';
+            options.where.status = options.status;
+        }
+
+        // If there are where conditionals specified, add those
+        // to the query.
+        if (options.where) {
+            issueCollection.query('where', options.where);
+        }
+
+        // Add related objects
+        options.withRelated = _.union(['tags'], options.include);
+
+        // If a query param for a tag is attached
+        // we need to fetch the tag model to find its id
+        function fetchTagQuery() {
+            if (tagInstance) {
+                return tagInstance.fetch();
+            }
+            return false;
+        }
+
+        function yearRangeFromYear(year) {
+          return [new Date(year, 0, 1), new Date(year + 1, 0, 1)]
+        }
+
+        return Promise.join(fetchTagQuery())
+
+            // Set the limit & offset for the query, fetching
+            // with the opts (to specify any eager relations, etc.)
+            // Omitting the `page`, `limit`, `where` just to be sure
+            // aren't used for other purposes.
+            .then(function () {
+                // If we have a tag instance we need to modify our query.
+                // We need to ensure we only select issues that contain
+                // the tag given in the query param.
+                if (tagInstance) {
+                    issueCollection
+                        .query('join', 'issues_tags', 'issues_tags.issue_id', '=', 'issues.id')
+                        .query('where', 'issues_tags.tag_id', '=', tagInstance.id);
+                }
+
+                return issueCollection
+                    .query('whereBetween', 'published_at', yearRangeFromYear(options.year))
+                    .query('orderBy', 'status', 'ASC')
+                    .query('orderBy', 'published_at', 'DESC')
+                    .query('orderBy', 'updated_at', 'DESC')
+                    .fetch(_.omit(options, 'year'));
+            })
+
+            // Fetch year-inated information
+            .then(function () {
+                var qb,
+                    tableName = _.result(issueCollection, 'tableName'),
+                    idAttribute = _.result(issueCollection, 'idAttribute');
+
+                // After we're done, we need to figure out what
+                // the limits are for the pagination values.
+                qb = ghostBookshelf.knex(tableName);
+                knex = ghostBookshelf.knex;
+
+                // TODO: hack for SQLite3. probably won't work for MySql
+                return knex.raw('SELECT DISTINCT strftime("%Y", published_at / 1000, "unixepoch") ' +
+                                'FROM ' + tableName + ' ' +
+                                'WHERE status = "published"');
+
+                // if (options.where) {
+                //     qb.where(options.where);
+                // }
+                //
+                // if (tagInstance) {
+                //     qb.join('issues_tags', 'issues_tags.issue_id', '=', 'issues.id');
+                //     qb.where('issues_tags.tag_id', '=', tagInstance.id);
+                // }
+                //
+                // return qb.distinct("date(published_at, 'start of year')");
+                // return qb.raw('SELECT DISTINCT YEAR(published_at)');
+                // .count(tableName + '.' + idAttribute + ' as aggregate');
+            })
+
+            // Format response of data
+            .then(function (resp) {
+                var publishYears = _.flatten(_.map(resp, _.values)),
+                    meta = {},
+                    data = {};
+
+                // Pass include to each model so that toJSON works correctly
+                if (options.include) {
+                    _.each(issueCollection.models, function (item) {
+                        item.include = options.include;
+                    });
+                }
+
+                data.issues = issueCollection.toJSON();
+                data.meta = meta;
+                meta.publish_years = publishYears;
+
+                if (tagInstance) {
+                    meta.filters = {};
+                    if (!tagInstance.isNew()) {
+                        meta.filters.tags = [tagInstance.toJSON()];
+                    }
+                }
+
+                return data;
+            })
+            .catch(errors.logAndThrowError);
+    },
 
     /**
      * ### Find All

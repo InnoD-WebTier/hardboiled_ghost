@@ -268,11 +268,6 @@ var ArticleEditorControllerMixin = Ember.Mixin.create(MarkerManager, {
     togglePreview: function (preview) {
       this.set('isPreview', preview);
     },
-
-    backToIssue: function() {
-      this.set('willGoBackToIssue', true);
-      return true;
-    },
   }
 });
 

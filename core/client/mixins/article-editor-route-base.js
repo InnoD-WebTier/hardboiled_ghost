@@ -17,6 +17,7 @@ var ArticleEditorRouteBase = Ember.Mixin.create(styleBody, ShortcutsRoute, loadi
       this.get('controller.codemirror').shortcut(options.type);
     },
     backToIssue: function() {
+      this.get('controller').set('willGoBackToIssue', true);
       this.send('reRenderArticles');
       this.transitionTo('issue_editor.edit');
     },
@@ -25,12 +26,11 @@ var ArticleEditorRouteBase = Ember.Mixin.create(styleBody, ShortcutsRoute, loadi
   renderTemplate: function (controller, model) {
     this._super();
 
-    //TODO: settings-menu
-    // this.render('post-settings-menu', {
-    //     into: 'application',
-    //     outlet: 'settings-menu',
-    //     model: model
-    // });
+    this.render('article-settings-menu', {
+        into: 'application',
+        outlet: 'settings-menu',
+        model: model
+    });
   },
 
   shortcuts: editorShortcuts,

@@ -146,7 +146,9 @@ var _              = require('lodash'),
                 },
 
                 dev: {
-                    options: {}
+                    options: {
+                      debug: true,
+                    }
                 },
                 test: {
                     options: {

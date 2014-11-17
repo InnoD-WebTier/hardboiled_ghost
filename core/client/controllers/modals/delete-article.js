@@ -19,7 +19,7 @@ var DeleteArticleController = Ember.Controller.extend({
 
         confirmReject: function () {
             return false;
-        }
+        },
     },
     confirm: {
         accept: {

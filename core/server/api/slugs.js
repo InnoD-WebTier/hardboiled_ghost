@@ -28,6 +28,8 @@ slugs = {
         // `allowedTypes` is used to define allowed slug types and map them against its model class counterpart
         allowedTypes = {
             post: dataProvider.Post,
+            issue: dataProvider.Issue,
+            article: dataProvider.Article,
             tag: dataProvider.Tag,
             user: dataProvider.User,
             app: dataProvider.App

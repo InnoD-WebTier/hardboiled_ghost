@@ -1,4 +1,4 @@
-var EditorSaveButtonView = Ember.View.extend({
+var ArticleEditorSaveButtonView = Ember.View.extend({
     templateName: 'article-editor-save-button',
     tagName: 'section',
     classNames: ['splitbtn', 'js-publish-splitbutton'],
@@ -16,4 +16,4 @@ var EditorSaveButtonView = Ember.View.extend({
     }),
 });
 
-export default EditorSaveButtonView;
+export default ArticleEditorSaveButtonView;

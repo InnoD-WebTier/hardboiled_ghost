@@ -24,6 +24,36 @@ function prepareInclude(include) {
 issues = {
 
     /**
+     * ### BrowseByYear
+     * Find a paginated set of posts
+     *
+     * Will only return published posts unless we have an authenticated user and an alternative status
+     * parameter.
+     *
+     * Will return without static pages unless told otherwise
+     *
+     * Can return posts for a particular tag by passing a tag slug in
+     *
+     * @public
+     * @param {{context, year, limit, status, tag}} options (optional)
+     * @returns {Promise(Posts)} Posts Collection with Meta
+     */
+    browseByYear: function browse(options) {
+        options = options || {};
+
+        if (!(options.context && options.context.user)) {
+            options.status = 'published';
+        }
+
+        if (options.include) {
+            options.include = prepareInclude(options.include);
+        }
+
+        console.log(options);
+        return dataProvider.Issue.findYear(options);
+    },
+
+    /**
      * ### Browse
      * Find a paginated set of posts
      *
@@ -35,12 +65,13 @@ issues = {
      * Can return posts for a particular tag by passing a tag slug in
      *
      * @public
-     * @param {{context, page, limit, status, staticPages, tag}} options (optional)
+     * @param {{context, year, limit, status, tag}} options (optional)
      * @returns {Promise(Posts)} Posts Collection with Meta
      */
     browse: function browse(options) {
         options = options || {};
 
+        // TODO
         // if (!(options.context && options.context.user)) {
         //     options.status = 'published';
         // }
@@ -49,8 +80,9 @@ issues = {
             options.include = prepareInclude(options.include);
         }
 
-        return dataProvider.Issue.findAll(options).then(function (result) {
-            return {issues: result.toJSON()};
+        return dataProvider.Issue.findAll(options).then(function (issues) {
+          console.log(issues.toJSON());
+          return {issues: issues.toJSON()};
         });
     },
 

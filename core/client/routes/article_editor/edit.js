@@ -37,6 +37,9 @@ var ArticleEditorEditRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMix
     // used to check if anything has changed in the editor
     controller.set('previousTagNames', model.get('tags').mapBy('name'));
 
+    // attach issueId to model
+    controller.set('issueId', this.modelFor('issue_editor/edit').id);
+
     // attach model-related listeners created in editor-route-base
     this.attachModelHooks(controller, model);
   },

@@ -44,6 +44,11 @@ dummyRouter.route = function () {
 // Cache static post permalink regex
 staticPostPermalink = dummyRouter.route('/:slug/:edit?');
 
+function getIssueYear(options) {
+    options.include = 'tags';
+    return api.issues.browseByYear(options);
+}
+
 function getPostPage(options) {
     return api.settings.read('postsPerPage').then(function (response) {
         var postPP = response.settings[0],
@@ -73,6 +78,13 @@ function formatPageResponse(posts, page) {
     };
 }
 
+function formatIssueListResponse(issues, page) {
+    return {
+        issues: issues,
+        publish_years: page.meta.publish_years,
+    };
+}
+
 function formatResponse(post) {
     // Delete email from author for frontend output
     // TODO: do this on API level if no context is available
@@ -80,6 +92,10 @@ function formatResponse(post) {
         delete post.author.email;
     }
     return {post: post};
+}
+
+function formatIssueResponse(issue) {
+  return {issue: issue};
 }
 
 function handleError(next) {
@@ -293,6 +309,96 @@ frontendControllers = {
         }).catch(handleError(next));
     },
 
+    issues: function (req, res, next) {
+        // Parse the issue year
+        var thisYear = new Date().getFullYear(),
+            yearParam = req.params.year !== undefined ? parseInt(req.params.year, 10) : thisYear,
+            options = {
+                year: yearParam
+            };
+
+        // No years < 2000, or current year
+        if (isNaN(yearParam) || yearParam < 2000 || (yearParam === thisYear && req.route.path === '/issues/:year/')) {
+            return res.redirect(config.paths.subdir + '/issues/');
+        }
+
+        return getIssueYear(options).then(function (year) {
+
+            // TODO
+            // If page is greater than number of pages we have, redirect to last page
+            // if (yearParam > page.meta.pagination.pages) {
+            //     return res.redirect(page.meta.pagination.pages === 1 ? config.paths.subdir + '/' : (config.paths.subdir + '/page/' + page.meta.pagination.pages + '/'));
+            // }
+
+            // setReqCtx(req, page.posts);
+
+            // Render the year of issues
+            filters.doFilter('preIssueListRender', year.issues).then(function (issues) {
+                getActiveThemePaths().then(function (paths) {
+                    var view = paths.hasOwnProperty('issues.hbs') ? 'issues' : 'index';
+
+                    setResponseContext(req, res);
+                    res.render(view, formatIssueListResponse(issues, year));
+                });
+            });
+        }).catch(handleError(next));
+    },
+    tag: function (req, res, next) {
+        // Parse the page number
+        var pageParam = req.params.page !== undefined ? parseInt(req.params.page, 10) : 1,
+            options = {
+                page: pageParam,
+                tag: req.params.slug
+            };
+
+        // Get url for tag page
+        function tagUrl(tag, page) {
+            var url = config.paths.subdir + '/tag/' + tag + '/';
+
+            if (page && page > 1) {
+                url += 'page/' + page + '/';
+            }
+
+            return url;
+        }
+
+        // No negative pages, or page 1
+        if (isNaN(pageParam) || pageParam < 1 || (req.params.page !== undefined && pageParam === 1)) {
+            return res.redirect(tagUrl(options.tag));
+        }
+
+        return getPostPage(options).then(function (page) {
+            // If page is greater than number of pages we have, redirect to last page
+            if (pageParam > page.meta.pagination.pages) {
+                return res.redirect(tagUrl(options.tag, page.meta.pagination.pages));
+            }
+
+            setReqCtx(req, page.posts);
+            if (page.meta.filters.tags) {
+                setReqCtx(req, page.meta.filters.tags[0]);
+            }
+
+            // Render the page of posts
+            filters.doFilter('prePostsRender', page.posts).then(function (posts) {
+                getActiveThemePaths().then(function (paths) {
+                    var view = template.getThemeViewForTag(paths, options.tag),
+
+                        // Format data for template
+                        result = _.extend(formatPageResponse(posts, page), {
+                            tag: page.meta.filters.tags ? page.meta.filters.tags[0] : ''
+                        });
+
+                    // If the resulting tag is '' then 404.
+                    if (!result.tag) {
+                        return next();
+                    }
+                    setResponseContext(req, res);
+                    res.render(view, result);
+                });
+            });
+        }).catch(handleError(next));
+    },
+
     single: function (req, res, next) {
         var path = req.path,
             params,
@@ -360,6 +466,120 @@ frontendControllers = {
                     getActiveThemePaths().then(function (paths) {
                         var view = template.getThemeViewForPost(paths, post),
                             response = formatResponse(post);
+
+                        setResponseContext(req, res, response);
+
+                        res.render(view, response);
+                    });
+                });
+            }
+
+            // If we've checked the path with the static permalink structure
+            // then the post must be a static post.
+            // If it is not then we must return.
+            if (usingStaticPermalink) {
+                if (post.page) {
+                    return render();
+                }
+
+                return next();
+            }
+
+            // If there is any date based paramter in the slug
+            // we will check it against the post published date
+            // to verify it's correct.
+            if (params.year || params.month || params.day) {
+                if (params.year) {
+                    slugDate.push(params.year);
+                    slugFormat.push('YYYY');
+                }
+
+                if (params.month) {
+                    slugDate.push(params.month);
+                    slugFormat.push('MM');
+                }
+
+                if (params.day) {
+                    slugDate.push(params.day);
+                    slugFormat.push('DD');
+                }
+
+                slugDate = slugDate.join('/');
+                slugFormat = slugFormat.join('/');
+
+                if (slugDate === moment(post.published_at).format(slugFormat)) {
+                    return render();
+                }
+
+                return next();
+            }
+
+            return render();
+        }).catch(function (err) {
+            // If we've thrown an error message
+            // of type: 'NotFound' then we found
+            // no path match.
+            if (err.type === 'NotFoundError') {
+                return next();
+            }
+
+            return handleError(next)(err);
+        });
+    },
+
+    singleIssue: function (req, res, next) {
+        var path = req.path,
+            params,
+            editFormat,
+            usingStaticPermalink = false;
+
+        api.settings.read('permalinks').then(function (response) {
+            var permalink = response.settings[0],
+                postLookup;
+
+            editFormat = permalink.value[permalink.value.length - 1] === '/' ? ':edit?' : '/:edit?';
+
+            // Convert saved permalink into an express Route object
+            permalink = dummyRouter.route('/issue' + permalink.value + editFormat);
+
+            // TODO: hack
+            permalink.match(path);
+            params = permalink.params;
+
+            // Sanitize params we're going to use to lookup the post.
+            issueLookup = _.pick(permalink.params, 'slug', 'id');
+            // Add author, tag and fields
+            issueLookup.include = 'tags';
+
+            // Query database to find issue
+            return api.issues.read(issueLookup);
+        }).then(function (result) {
+            var issue = result.issues[0],
+                slugDate = [],
+                slugFormat = [];
+
+            if (!issue) {
+                return next();
+            }
+
+            function render() {
+                // If we're ready to render the page but the last param is 'edit' then we'll send you to the edit page.
+                if (params.edit) {
+                    params.edit = params.edit.toLowerCase();
+                }
+                if (params.edit === 'edit') {
+                    return res.redirect(config.paths.subdir + '/ghost/issue_editor/' + issue.id + '/');
+                } else if (params.edit !== undefined) {
+                    // reject with type: 'NotFound'
+                    return Promise.reject(new errors.NotFoundError());
+                }
+
+                setReqCtx(req, issue);
+
+                filters.doFilter('preIssueRender', issue).then(function (issue) {
+                    getActiveThemePaths().then(function (paths) {
+                        var view = paths.hasOwnProperty('issue.hbs') ? 'issue' : 'index',
+                            response = formatIssueResponse(issue);
 
                         setResponseContext(req, res, response);
 
