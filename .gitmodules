@@ -1,3 +1,7 @@
 [submodule "content/themes/casper"]
 	path = content/themes/casper
-	url = https://github.com/TryGhost/Casper.git
+    url = https://github.com/TryGhost/Casper.git
+
+[submodule "content/themes/hb_theme"]
+    path = content/themes/hb_theme
+    url = git@github.com:InnoD-WebTier/hb_theme
