@@ -7,7 +7,7 @@ var Promise         = require('bluebird'),
     utils           = require('./utils'),
 
     docName         = 'issues',
-    allowedIncludes = ['created_by', 'updated_by', 'published_by', 'tags'],
+    allowedIncludes = ['created_by', 'updated_by', 'published_by', 'tags', 'articles'],
     issues;
 
 // ## Helpers
@@ -49,7 +49,6 @@ issues = {
             options.include = prepareInclude(options.include);
         }
 
-        console.log(options);
         return dataProvider.Issue.findYear(options);
     },
 

@@ -146,8 +146,8 @@ Issue = ghostBookshelf.Model.extend({
     },
 
     // Relations
-    issues: function () {
-        return this.hasMany('Issues', 'issue_id');
+    articles: function () {
+        return this.hasMany('Articles', 'issue_id');
     },
 
     created_by: function () {
@@ -391,7 +391,7 @@ Issue = ghostBookshelf.Model.extend({
         delete data.status;
 
         // Add related objects
-        options.withRelated = _.union(['tags'], options.include);
+        options.withRelated = _.union(['tags', 'articles'], options.include);
 
         return ghostBookshelf.Model.findOne.call(this, data, options);
     },

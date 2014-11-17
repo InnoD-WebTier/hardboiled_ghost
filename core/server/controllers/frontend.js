@@ -94,6 +94,15 @@ function formatResponse(post) {
     return {post: post};
 }
 
+function formatArticleResponse(article) {
+    // Delete email from author for frontend output
+    // TODO: do this on API level if no context is available
+    if (article.author) {
+        delete article.author.email;
+    }
+    return {article: article};
+}
+
 function formatIssueResponse(issue) {
   return {issue: issue};
 }
@@ -535,21 +544,24 @@ frontendControllers = {
 
         api.settings.read('permalinks').then(function (response) {
             var permalink = response.settings[0],
-                postLookup;
+                issueLookup;
 
             editFormat = permalink.value[permalink.value.length - 1] === '/' ? ':edit?' : '/:edit?';
 
             // Convert saved permalink into an express Route object
             permalink = dummyRouter.route('/issue' + permalink.value + editFormat);
 
-            // TODO: hack
+            // TODO: hack, i think
+            if (permalink.match(path) === false) {
+                return Promise.reject(new errors.NotFoundError());
+            }
             permalink.match(path);
             params = permalink.params;
 
             // Sanitize params we're going to use to lookup the post.
             issueLookup = _.pick(permalink.params, 'slug', 'id');
             // Add author, tag and fields
-            issueLookup.include = 'tags';
+            issueLookup.include = 'tags,articles';
 
             // Query database to find issue
             return api.issues.read(issueLookup);
@@ -640,6 +652,116 @@ frontendControllers = {
             return handleError(next)(err);
         });
     },
+
+    singleArticle: function (req, res, next) {
+        var path = req.path,
+            params,
+            editFormat,
+            usingStaticPermalink = false;
+
+        api.settings.read('permalinks').then(function (response) {
+            var permalink = response.settings[0],
+                articleLookup;
+
+            editFormat = permalink.value[permalink.value.length - 1] === '/' ? ':edit?' : '/:edit?';
+
+            // Convert saved permalink into an express Route object
+            permalink = dummyRouter.route('/article' + permalink.value + editFormat);
+
+            // TODO: hack, i think
+            if (permalink.match(path) === false) {
+                return Promise.reject(new errors.NotFoundError());
+            }
+            permalink.match(path);
+            params = permalink.params;
+
+            // Sanitize params we're going to use to lookup the article.
+            articleLookup = _.pick(permalink.params, 'slug', 'id');
+            // Add author, tag and fields
+            articleLookup.include = 'author,tags,issue_id';
+
+            // Query database to find article
+            return api.articles.read(articleLookup);
+        }).then(function (result) {
+            var article = result.articles[0],
+                slugDate = [],
+                slugFormat = [];
+
+            if (!article) {
+                return next();
+            }
+
+            function render() {
+                // If we're ready to render the page but the last param is 'edit' then we'll send you to the edit page.
+                if (params.edit) {
+                    params.edit = params.edit.toLowerCase();
+                }
+                if (params.edit === 'edit') {
+                    return res.redirect(config.paths.subdir +
+                                        '/ghost/issue_editor/' + article.issue.id +
+                                        '/article_editor/' + article.id + '/'
+                                       );
+                } else if (params.edit !== undefined) {
+                    // reject with type: 'NotFound'
+                    return Promise.reject(new errors.NotFoundError());
+                }
+
+                setReqCtx(req, article);
+
+                filters.doFilter('preArticlesRender', article).then(function (article) {
+                    getActiveThemePaths().then(function (paths) {
+                        var view = paths.hasOwnProperty('article.hbs') ? 'article' : 'index',
+                            response = formatArticleResponse(article);
+
+                        setResponseContext(req, res, response);
+
+                        res.render(view, response);
+                    });
+                });
+            }
+
+            // If there is any date based paramter in the slug
+            // we will check it against the article published date
+            // to verify it's correct.
+            if (params.year || params.month || params.day) {
+                if (params.year) {
+                    slugDate.push(params.year);
+                    slugFormat.push('YYYY');
+                }
+
+                if (params.month) {
+                    slugDate.push(params.month);
+                    slugFormat.push('MM');
+                }
+
+                if (params.day) {
+                    slugDate.push(params.day);
+                    slugFormat.push('DD');
+                }
+
+                slugDate = slugDate.join('/');
+                slugFormat = slugFormat.join('/');
+
+                if (slugDate === moment(article.published_at).format(slugFormat)) {
+                    return render();
+                }
+
+                return next();
+            }
+
+            return render();
+        }).catch(function (err) {
+            // If we've thrown an error message
+            // of type: 'NotFound' then we found
+            // no path match.
+            if (err.type === 'NotFoundError') {
+                return next();
+            }
+
+            return handleError(next)(err);
+        });
+    },
+
     rss: function (req, res, next) {
         function isPaginated() {
             return req.route.path.indexOf(':page') !== -1;

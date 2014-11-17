@@ -53,7 +53,10 @@ frontendRoutes = function () {
     router.get('/issues/', frontend.issues);
     router.get('/issue/*', frontend.singleIssue);
 
-    // Default
+    // Articles
+    router.get('/article/:slug/', frontend.singleArticle);
+
+    // Posts/Default
     router.get('/page/:page/', frontend.homepage);
     router.get('/', frontend.homepage);
     router.get('*', frontend.single);
