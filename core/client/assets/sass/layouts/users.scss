@@ -6,6 +6,15 @@
 // TODO: Rename everything. This is a layout, rather
 // than a re-usable component.
 
+.settings-users {
+    position: absolute;
+    top: 95px;
+    bottom: 0;
+    left: 25%;
+    right: 0;
+    overflow: auto;
+}
+
 .invited-users {
     margin-bottom: 34px;
 }

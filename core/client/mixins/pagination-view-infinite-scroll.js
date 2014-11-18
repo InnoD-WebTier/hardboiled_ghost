@@ -5,6 +5,7 @@ var PaginationViewInfiniteScrollMixin = Ember.Mixin.create({
      * @param event The scroll event
      */
     checkScroll: function (event) {
+        Ember.Logger.log('checkScroll');
         var element = event.target,
             triggerPoint = 100,
             controller = this.get('controller'),

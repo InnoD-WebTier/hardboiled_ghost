@@ -52,10 +52,6 @@ Importer000.prototype.loadUsers = function () {
     });
 };
 
-// Importer000.prototype.importerFunction = function (t) {
-//
-// };
-
 Importer000.prototype.doUserImport = function (t, tableData, users, errors) {
     var userOps = [],
         imported = [];
@@ -124,6 +120,7 @@ Importer000.prototype.doImport = function (data) {
                     tableData = utils.preProcessPostTags(tableData);
                 }
 
+                console.log('done importing users!');
                 // Import things in the right order
 
                 return utils.importTags(tableData.tags, t).then(function (results) {

@@ -71,18 +71,17 @@ Article = ghostBookshelf.Model.extend({
         }
     },
 
-// TODO: author id cannot be set dynamically; must be input manually
-//     creating: function (newPage, attr, options) {
-//         /*jshint unused:false*/
-//         options = options || {};
-//
-//         // set any dynamic default properties
-//         if (!this.get('author_id')) {
-//             this.set('author_id', this.contextUser(options));
-//         }
-//
-//         ghostBookshelf.Model.prototype.creating.call(this, newPage, attr, options);
-//     },
+    creating: function (newPage, attr, options) {
+        /*jshint unused:false*/
+        options = options || {};
+
+        // set any dynamic default properties
+        if (!this.get('author_id')) {
+            this.set('author_id', this.contextUser(options));
+        }
+
+        ghostBookshelf.Model.prototype.creating.call(this, newPage, attr, options);
+    },
 
    /**
      * ### updateTags

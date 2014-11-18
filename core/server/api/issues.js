@@ -80,7 +80,6 @@ issues = {
         }
 
         return dataProvider.Issue.findAll(options).then(function (issues) {
-          console.log(issues.toJSON());
           return {issues: issues.toJSON()};
         });
     },

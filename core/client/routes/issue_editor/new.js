@@ -21,7 +21,6 @@ var IssueEditorNewRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin,
 
   actions: {
     willTransition: function (transition) {
-      //TODO: not working :(
       var controller = this.get('controller'),
           model = controller.get('model'),
           isNew = model.get('isNew');
