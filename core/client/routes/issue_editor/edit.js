@@ -1,6 +1,7 @@
 import loadingIndicator from 'ghost/mixins/loading-indicator';
 
 var IssueEditorEditRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin, loadingIndicator, {
+
   model: function (params) {
     var self = this,
     issue,
@@ -31,21 +32,39 @@ var IssueEditorEditRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin
   },
 
   renderArticleList: function(_model) {
-    var self = this,
-        model = _model || this.modelFor('issue_editor.edit');
+    var self               = this,
+        mainController     = this.get('controller'),
+        articlesController = this.controllerFor('articles'),
+        model;
 
-    this.store.find('article', {
-      issue_id: model.get('id'),
-    }).then(function (articles) {
-      self.render('articles', {
-        into: 'issue_editor/edit',
-        outlet: 'issue-article-list',
-        controller: 'articles',
-        model: articles,
+    var afterIssueModel = function() {
+      return self.store.find('article', {
+        issue_id: model.get('id')
+      }).then(function (articles) {
+        articlesController.set('model', articles);
+        articlesController.set('initialOrdering', _.map(articles.content, function(a) {
+          return a.id;
+        }));
+        self.render('articles', {
+          into: 'issue_editor/edit',
+          outlet: 'issue-article-list',
+          controller: articlesController
+        });
+      }).catch(function (errors) {
+        self.notifications.showAPIError(errors);
       });
-    }).catch(function (errors) {
-      self.notifications.showAPIError(errors);
-    });
+    };
+
+    if (_model) {
+      model = _model;
+      return afterIssueModel();
+    } else {
+      /* need to reloadRecord for the issue because article_length might have changed */
+      return this.store.reloadRecord(this.modelFor('issue_editor.edit')).then(function(issue) {
+        model = issue;
+        afterIssueModel();
+      });
+    }
   },
 
   serialize: function(model) {
@@ -55,6 +74,7 @@ var IssueEditorEditRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin
   setupController: function (controller, model) {
     this._super(controller, model);
 
+    controller.set('issueId', model.get('id'));
     controller.set('titleValue', model.get('title'));
     controller.set('publishedAtValue', model.get('published_at'));
   },

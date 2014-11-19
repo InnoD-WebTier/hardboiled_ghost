@@ -3,12 +3,8 @@
     <section class="content-filter">
       <small>Articles</small>
     </section>
+    {{!TODO: bad style is bad}}
+    <button {{action "saveOrder"}} {{bind-attr class=":btn :btn-default :btn-sm :btn-blue view.dirtyOrdering:enabled:disabled"}}>Save Order</button>
   </header>
-  <ol class="posts-list">
-    {{#each itemController="issue_editor/edit/article" itemView="article-item-view" itemTagName="li"}}
-    {{#link-to "issue_editor.edit.article" this class="permalink" title="Edit this article"}}
-    <h3 class="entry-title">{{title}}</h3>
-    {{/link-to}}
-    {{/each}}
-  </ol>
+  {{view "reorderable-articles-collection" controller=controller content=model}}
 </section>

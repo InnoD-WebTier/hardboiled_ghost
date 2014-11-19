@@ -345,9 +345,7 @@ Article = ghostBookshelf.Model.extend({
                 return articleCollection
                     .query('limit', options.limit)
                     .query('offset', options.limit * (options.page - 1))
-                    .query('orderBy', 'status', 'ASC')
-                    .query('orderBy', 'published_at', 'DESC')
-                    .query('orderBy', 'updated_at', 'DESC')
+                    .query('orderBy', 'article_num', 'ASC')
                     .fetch(_.omit(options, 'page', 'limit'));
             })
 
@@ -510,18 +508,49 @@ Article = ghostBookshelf.Model.extend({
     },
 
     /**
+     * TODO: more documentation
      * ### Destroy
      * @extends ghostBookshelf.Model.destroy to clean up tag relations
      * **See:** [ghostBookshelf.Model.destroy](base.js.html#destroy)
      */
     destroy: function (options) {
-        var id = options.id;
+        var id = options.id,
+
+        fetchedArticle,
+        containingIssue,
+        fetchedIssue;
+
         options = this.filterOptions(options, 'destroy');
 
-        return this.forge({id: id}).fetch({withRelated: ['tags']}).then(function destroyTagsAndArticle(article) {
-            return article.related('tags').detach().then(function () {
-                return article.destroy(options);
-            });
+        return this.forge({id: id}).fetch({withRelated: ['tags', 'issue_id']}).then(function destroyTagsAndArticle(article) {
+          fetchedArticle = article;
+          return article.related('issue_id').fetch({withRelated: ['articles']});
+        }).then(function(issue) {
+          containingIssue = issue;
+
+          var attrs = issue.attributes;
+          attrs.article_length -= 1;
+          return ghostBookshelf.model('Issue').edit(
+            attrs,
+            {id: attrs.id, context: options.context}
+          );
+        }).then(function() {
+          return containingIssue.related('articles').fetch();
+        }).then(function(articles) {
+          var updateArticleIndices = _.compact(_.map(articles.models, function(article) {
+            var attrs = article.attributes;
+            if (attrs.article_num <= fetchedArticle.attributes.article_num) { return; }
+            attrs.article_num -= 1;
+            return ghostBookshelf.model('Article').edit(
+              attrs,
+              {id: attrs.id, context: options.context}
+            );
+          }));
+          return Promise.all(updateArticleIndices);
+        }).then(function() {
+          return fetchedArticle.related('tags').detach();
+        }).then(function () {
+          return fetchedArticle.destroy(options);
         });
     },
 

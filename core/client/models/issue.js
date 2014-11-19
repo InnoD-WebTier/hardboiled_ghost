@@ -9,6 +9,8 @@ var Issue = DS.Model.extend(NProgressSaveMixin, ValidationEngine, {
     slug: DS.attr('string'),
     image: DS.attr('string'),
     pdf: DS.attr('string'),
+    article_length: DS.attr('number', {defaultValue: 0}),
+    series: DS.attr('string'),
     status: DS.attr('string', {defaultValue: 'draft'}),
     language: DS.attr('string', {defaultValue: 'en_US'}),
     meta_title: DS.attr('string'),

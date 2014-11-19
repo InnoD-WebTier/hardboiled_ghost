@@ -187,7 +187,9 @@ var ArticleEditorControllerMixin = Ember.Mixin.create(MarkerManager, {
   actions: {
     save: function () {
       var isNew = this.get('isNew'),
-      self = this;
+      self = this,
+      prevArticleLength,
+      issueInstance;
 
       self.notifications.closePassive();
 
@@ -202,8 +204,15 @@ var ArticleEditorControllerMixin = Ember.Mixin.create(MarkerManager, {
       // Set issue
       this.set('issue_id', this.get('issueId'));
 
-      return this.get('model').save().then(function (model) {
+      //TODO: no real error checking (i.e., no rollbacks on failure)
+      return this.store.find('issue', this.get('issueId')).then(function (issue) {
+        issueInstance = issue;
+        prevArticleLength = issue.get('article_length');
+        self.set('article_num', prevArticleLength);
+        return self.get('model').save();
+      }).then(function (model) {
         self.showSaveNotification(isNew ? true : false);
+        issueInstance.set('article_length', prevArticleLength + 1).save();
         return Ember.RSVP.resolve(model);
       }).catch(function (errors) {
         self.showErrorNotification(errors);

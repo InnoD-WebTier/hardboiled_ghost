@@ -201,6 +201,30 @@ articles = {
             });
         });
 
+        /*
+        var readOptions = _.extend({}, options),
+            readArticle,
+            articleNum;
+        return articles.read(readOptions).then(function (result) {
+            if (!result.articles) {
+              return Promise.reject('could not find article to destroy');
+            }
+            markedArticle = result.articles[0];
+            articleNum = result.article_num;
+            debugger;
+            return dataProvider.Issue.findOne({context: options.context, id: markedArticle.issue_id});
+        }).then(function (issue) {
+            issue.article_length = issue.article_length - 1;
+            dataProvider.Issue.edit(issue, {context: options.context, id: markedArticle.issue_id});
+            debugger;
+        }).then(function () {
+            return dataProvider.Article.destroy(options);
+        }).then(function () {
+            markedArticle.statusChanged = true;
+            return markedArticle;
+        });
+        */
+
         // }, function () {
         //     return Promise.reject(new errors.NoPermissionError('You do not have permission to remove articles.'));
         // });

@@ -3,6 +3,7 @@ import SlugGenerator from 'ghost/models/slug-generator';
 import boundOneWay from 'ghost/utils/bound-one-way';
 
 var IssueEditorEditController = Ember.ObjectController.extend(IssueEditorControllerMixin, {
+  needs: ['articles'],
 
   slugValue: boundOneWay('model.slug'),
   //Lazy load the slug generator for slugPlaceholder
