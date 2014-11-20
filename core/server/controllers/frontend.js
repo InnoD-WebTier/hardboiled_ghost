@@ -103,10 +103,6 @@ function formatArticleResponse(article) {
     return {article: article};
 }
 
-function formatIssueResponse(issue) {
-  return {issue: issue};
-}
-
 function handleError(next) {
     return function (err) {
         return next(err);
@@ -537,36 +533,37 @@ frontendControllers = {
     },
 
     singleIssue: function (req, res, next) {
-        var path = req.path,
-            params,
-            editFormat,
-            usingStaticPermalink = false;
+        var articleNumParam = req.params.article_num !== undefined ? parseInt(req.params.article_num, 10) : 1,
+            options = {
+                article_num: articleNumParam,
+                issue: req.params.slug
+            },
 
-        api.settings.read('permalinks').then(function (response) {
-            var permalink = response.settings[0],
-                issueLookup;
+            fetchedIssue,
+            currentArticle;
 
-            editFormat = permalink.value[permalink.value.length - 1] === '/' ? ':edit?' : '/:edit?';
+        // No negative article_nums, or article_num 1
+        if (isNaN(articleNumParam) || articleNumParam < 1 || (articleNumParam === 1 && req.route.path === '/issue/:slug/:article_num')) {
+            return res.redirect(config.paths.subdir + '/issue/' + options.issue);
+        }
 
-            // Convert saved permalink into an express Route object
-            permalink = dummyRouter.route('/issue' + permalink.value + editFormat);
 
-            // TODO: hack, i think
-            if (permalink.match(path) === false) {
-                return Promise.reject(new errors.NotFoundError());
+        return api.issues.read({slug: options.issue, include: 'tags,articles'}).then(function (result) {
+            fetchedIssue = result.issues[0];
+
+            // If article_num is greater than number of articles we have, redirect to last article_num
+            if (articleNumParam > fetchedIssue.article_length) {
+                return res.redirect(fetchedIssue.article_length === 1 ?
+                                    (config.paths.subdir + '/issue/' + options.issue) :
+                                    (config.paths.subdir + '/issue/' + options.issue + '/' + fetchedIssue.article_length)
+                                   );
             }
-            permalink.match(path);
-            params = permalink.params;
 
-            // Sanitize params we're going to use to lookup the post.
-            issueLookup = _.pick(permalink.params, 'slug', 'id');
-            // Add author, tag and fields
-            issueLookup.include = 'tags,articles';
-
-            // Query database to find issue
-            return api.issues.read(issueLookup);
+            currentArticle = fetchedIssue.articles[articleNumParam - 1];
+            return api.users.read({id: currentArticle.author});
         }).then(function (result) {
-            var issue = result.issues[0],
+            currentArticle.author = result.users[0];
+            var issue = fetchedIssue,
                 slugDate = [],
                 slugFormat = [];
 
@@ -574,73 +571,40 @@ frontendControllers = {
                 return next();
             }
 
-            function render() {
-                // If we're ready to render the page but the last param is 'edit' then we'll send you to the edit page.
-                if (params.edit) {
-                    params.edit = params.edit.toLowerCase();
-                }
-                if (params.edit === 'edit') {
-                    return res.redirect(config.paths.subdir + '/ghost/issue_editor/' + issue.id + '/');
-                } else if (params.edit !== undefined) {
-                    // reject with type: 'NotFound'
-                    return Promise.reject(new errors.NotFoundError());
-                }
+            // TODO: link editing from frontend
+            // // If we're ready to render the article_num but the last param is 'edit' then we'll send you to the edit article_num.
+            // if (params.edit) {
+            //     params.edit = params.edit.toLowerCase();
+            // }
+            // if (params.edit === 'edit') {
+            //     return res.redirect(config.paths.subdir + '/ghost/issue_editor/' + issue.id + '/');
+            // } else if (params.edit !== undefined) {
+            //     // reject with type: 'NotFound'
+            //     return Promise.reject(new errors.NotFoundError());
+            // }
 
-                setReqCtx(req, issue);
+            setReqCtx(req, issue);
 
-                filters.doFilter('preIssueRender', issue).then(function (issue) {
-                    getActiveThemePaths().then(function (paths) {
-                        var view = paths.hasOwnProperty('issue.hbs') ? 'issue' : 'index',
-                            response = formatIssueResponse(issue);
+            filters.doFilter('preSingleArticleRender', issue).then(function (issue) {
+                getActiveThemePaths().then(function (paths) {
+                    var view = paths.hasOwnProperty('issue.hbs') ? 'issue' : 'issue_index',
+                        response = {
+                          issue: fetchedIssue,
+                          current_article: currentArticle,
+                          article_num: articleNumParam
+                        };
 
-                        setResponseContext(req, res, response);
+                    // If we're on a article_num then we always render the issue index
+                    // template.
+                    if (articleNumParam > 1) {
+                        view = 'issue_index';
+                    }
 
-                        res.render(view, response);
-                    });
+                    setResponseContext(req, res, response);
+
+                    res.render(view, response);
                 });
-            }
-
-            // If we've checked the path with the static permalink structure
-            // then the post must be a static post.
-            // If it is not then we must return.
-            if (usingStaticPermalink) {
-                if (post.page) {
-                    return render();
-                }
-
-                return next();
-            }
-
-            // If there is any date based paramter in the slug
-            // we will check it against the post published date
-            // to verify it's correct.
-            if (params.year || params.month || params.day) {
-                if (params.year) {
-                    slugDate.push(params.year);
-                    slugFormat.push('YYYY');
-                }
-
-                if (params.month) {
-                    slugDate.push(params.month);
-                    slugFormat.push('MM');
-                }
-
-                if (params.day) {
-                    slugDate.push(params.day);
-                    slugFormat.push('DD');
-                }
-
-                slugDate = slugDate.join('/');
-                slugFormat = slugFormat.join('/');
-
-                if (slugDate === moment(post.published_at).format(slugFormat)) {
-                    return render();
-                }
-
-                return next();
-            }
-
-            return render();
+            });
         }).catch(function (err) {
             // If we've thrown an error message
             // of type: 'NotFound' then we found
@@ -651,6 +615,7 @@ frontendControllers = {
 
             return handleError(next)(err);
         });
+
     },
 
     singleArticle: function (req, res, next) {

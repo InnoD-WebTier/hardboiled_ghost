@@ -205,19 +205,31 @@ var ArticleEditorControllerMixin = Ember.Mixin.create(MarkerManager, {
       this.set('issue_id', this.get('issueId'));
 
       //TODO: no real error checking (i.e., no rollbacks on failure)
-      return this.store.find('issue', this.get('issueId')).then(function (issue) {
-        issueInstance = issue;
-        prevArticleLength = issue.get('article_length');
-        self.set('article_num', prevArticleLength);
-        return self.get('model').save();
-      }).then(function (model) {
-        self.showSaveNotification(isNew ? true : false);
-        issueInstance.set('article_length', prevArticleLength + 1).save();
-        return Ember.RSVP.resolve(model);
-      }).catch(function (errors) {
-        self.showErrorNotification(errors);
-        return Ember.RSVP.reject(errors);
-      });
+
+      var afterIssueNum = function () {
+        return self.get('model').save().then(function (model) {
+          self.showSaveNotification(isNew ? true : false);
+          if (isNew) {
+            issueInstance.set('article_length', prevArticleLength + 1).save();
+          }
+          return Ember.RSVP.resolve(model);
+        }).catch(function (errors) {
+          self.showErrorNotification(errors);
+          return Ember.RSVP.reject(errors);
+        });
+      };
+
+      if (isNew) {
+        return this.store.find('issue', this.get('issueId')).then(function (issue) {
+          issueInstance = issue;
+          prevArticleLength = issue.get('article_length');
+          self.set('article_num', prevArticleLength);
+          return afterIssueNum();
+        });
+      } else {
+        return afterIssueNum();
+      }
+
     },
 
     // set from a `sendAction` on the codemirror component,

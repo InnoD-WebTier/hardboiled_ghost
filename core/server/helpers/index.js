@@ -326,6 +326,7 @@ coreHelpers.content = function (options) {
             downsize(this.html, truncateOptions)
         );
     }
+    debugger;
 
     return new hbs.handlebars.SafeString(this.html);
 };

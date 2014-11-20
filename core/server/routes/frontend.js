@@ -49,12 +49,14 @@ frontendRoutes = function () {
     router.get('/author/:slug/', frontend.author);
 
     // Issues
-    router.get('/issues/:year/', frontend.issues);
     router.get('/issues/', frontend.issues);
-    router.get('/issue/*', frontend.singleIssue);
+    router.get('/issues/:year/', frontend.issues);
+    router.get('/issue/:slug/', frontend.singleIssue);
+    router.get('/issue/:slug/:article_num/', frontend.singleIssue);
 
+    // TODO
     // Articles
-    router.get('/article/:slug/', frontend.singleArticle);
+    // router.get('/article/:slug/', frontend.singleArticle);
 
     // Posts/Default
     router.get('/page/:page/', frontend.homepage);
