@@ -203,11 +203,29 @@ Issue = ghostBookshelf.Model.extend({
             filteredData;
 
         // manually add 'tags' attribute since it's not in the schema
-        permittedAttributes.push('tags');
+        permittedAttributes.push('tags', 'articles');
 
         filteredData = _.pick(data, permittedAttributes);
 
         return filteredData;
+    },
+
+    buildWithRelated: function (include) {
+      include = _.union(['tags', 'articles'], include);
+      var buildOptions = {
+        articles: function (qb) {
+          qb.orderBy('article_num', 'ASC');
+        },
+      };
+
+      return _.map(include, function(op) {
+        if (buildOptions.hasOwnProperty(op)) {
+          var qbOption = {};
+          qbOption[op] = buildOptions[op];
+          return qbOption;
+        }
+        return op;
+      });
     },
 
     // ## Model Data Functions
@@ -262,7 +280,7 @@ Issue = ghostBookshelf.Model.extend({
         }
 
         // Add related objects
-        options.withRelated = _.union(['tags'], options.include);
+        options.withRelated = this.buildWithRelated(options.include);
 
         // If a query param for a tag is attached
         // we need to fetch the tag model to find its id
@@ -368,7 +386,8 @@ Issue = ghostBookshelf.Model.extend({
      */
     findAll:  function (options) {
         options = options || {};
-        options.withRelated = _.union(['tags'], options.include);
+
+        options.withRelated = this.buildWithRelated(options.include);
         return ghostBookshelf.Model.findAll.call(this, options);
     },
 
@@ -390,9 +409,9 @@ Issue = ghostBookshelf.Model.extend({
         // }
         delete data.status;
 
+        //TODO: should be in *every* query to issue
         // Add related objects
-        options.withRelated = _.union(['tags', 'articles'], options.include);
-
+        options.withRelated = this.buildWithRelated(options.include);
         return ghostBookshelf.Model.findOne.call(this, data, options);
     },
 
