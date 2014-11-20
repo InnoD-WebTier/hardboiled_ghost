@@ -5,6 +5,7 @@
 
 var path          = require('path'),
     Promise       = require('bluebird'),
+    cloudinary    = require('cloudinary'),
     fs            = require('fs'),
     url           = require('url'),
     _             = require('lodash'),
@@ -101,6 +102,13 @@ ConfigManager.prototype.set = function (config) {
     if (!knexInstance && this._config.database && this._config.database.client) {
         knexInstance = knex(this._config.database);
     }
+
+    // Setup cloudinary API
+    cloudinary.config({
+        cloud_name: 'hardboiled',
+        api_key: '591224783234187',
+        api_secret: 'a04UL1QZgjM5mNyj0wfKraVJVuE'
+    });
 
     _.merge(this._config, {
         database: {

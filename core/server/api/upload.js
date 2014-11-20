@@ -1,8 +1,9 @@
-var Promise = require('bluebird'),
-    path    = require('path'),
-    fs      = require('fs-extra'),
-    storage = require('../storage'),
-    errors  = require('../errors'),
+var cloudinary = require('cloudinary'),
+    Promise    = require('bluebird'),
+    path       = require('path'),
+    fs         = require('fs-extra'),
+    storage    = require('../storage'),
+    errors     = require('../errors'),
 
     upload;
 
@@ -91,12 +92,66 @@ upload = {
         }).then(function () {
             return store.savePdf(options.uploadpdf);
         }).then(function (url) {
-            return url;
+            pdfUrl = url;
+            var fullPath = process.cwd() + url;
+            debugger;
+            // upload pdf to cloudinary, generate image for first page of pdf
+            return new Promise(function (resolve) {
+              debugger;
+              cloudinary.uploader.upload(fullPath, function (result) {
+                debugger;
+                return resolve(result);
+              });
+            });
+        }).then(function (result) {
+            debugger;
+            return new Promise(function (resolve) {
+              return resolve(cloudinary.url(result.public_id, {
+                format: "jpg",
+                width: 850,
+                height: 1100,
+                crop: "fill"
+              }));
+            });
+        }).then(function (imgUrl) {
+            debugger;
+            return {
+              pdfUrl: pdfUrl,
+              imgUrl: imgUrl,
+            }
         }).finally(function () {
             // Remove uploaded file from tmp location
             return Promise.promisify(fs.unlink)(filepath);
         });
     },
 };
+/*
+    }).then(function (url) {
+        pdfUrl = url;
+        fullPath = process.cwd() + url;
+        // upload pdf to cloudinary, generate image for first page of pdf
+        return cloudinary.uploader.upload(fullPath, function (result) {
+          debugger;
+          return Promise.resolve(result);
+        });
+    }).then(function (result) {
+        debugger;
+        return Promise.promisify(cloudinary.url)(result.public_id, {
+          format: "jpg",
+          width: 850,
+          height: 1100,
+          crop: "fill"
+        });
+    }).then(function (imgUrl) {
+        debugger;
+        return {
+          pdfUrl: pdfUrl,
+          imgUrl: imgUrl,
+        }
+    }).finally(function () {
+        // Remove uploaded file from tmp location
+        return Promise.promisify(fs.unlink)(filepath);
+    });
+*/
 
 module.exports = upload;

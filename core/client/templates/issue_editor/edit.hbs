@@ -26,6 +26,7 @@
         </span>
       </div>
 
+
       <div class="form-group">
         <a class="btn btn-default btn-blue" target="_blank" href="{{hb-issue-pdf-url}}">View PDF</a>
       </div>
@@ -33,6 +34,8 @@
       <div class="form-group">
         <button {{bind-attr class=":btn :btn-default model.isPublished:btn-red:btn-green" }} {{action "togglePublished"}}>{{#if model.isPublished}}Unpublish{{else}}Publish{{/if}} Issue</button>
       </div>
+
+      {{gh-uploader uploaded="setIssueCover" canceled="clearIssueCover" image=image tagName="section" classNames="cover-uploader"}}
 
       <div class="issue-article-list">
         {{outlet "issue-article-list"}}

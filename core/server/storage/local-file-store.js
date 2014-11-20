@@ -1,15 +1,16 @@
 // # Local File System Image Storage module
 // The (default) module for storing images, using the local file system
 
-var express   = require('express'),
-    fs        = require('fs-extra'),
-    path      = require('path'),
-    util      = require('util'),
-    Promise   = require('bluebird'),
-    errors    = require('../errors'),
-    config    = require('../config'),
-    utils     = require('../utils'),
-    baseStore = require('./base');
+var cloudinary = require('cloudinary'),
+    express    = require('express'),
+    fs         = require('fs-extra'),
+    path       = require('path'),
+    util       = require('util'),
+    Promise    = require('bluebird'),
+    errors     = require('../errors'),
+    config     = require('../config'),
+    utils      = require('../utils'),
+    baseStore  = require('./base');
 
 function LocalFileStore() {
 }
@@ -57,7 +58,8 @@ LocalFileStore.prototype.serve = function () {
 // ### Save PDF
 // Saves the pdf to storage (the file system)
 // - pdf is the express pdf object
-// - returns a promise which ultimately returns the full url to the uploaded pdf
+// - returns a promise which ultimately returns the full url to the uploaded pdf,
+//   as well as an image of the first page
 LocalFileStore.prototype.savePdf = function(pdf) {
     var targetDir = this.getTargetDir(config.paths.pdfPath),
         targetFilename;
@@ -70,8 +72,10 @@ LocalFileStore.prototype.savePdf = function(pdf) {
     }).then(function () {
         // The src for the image must be in URI format, not a file system path, which in Windows uses \
         // For local file system storage can use relative path so add a slash
-        var fullUrl = (config.paths.subdir + '/' + config.paths.pdfRelPath + '/' +
-            path.relative(config.paths.pdfPath, targetFilename)).replace(new RegExp('\\' + path.sep, 'g'), '/');
+        var fullUrl = (config.paths.subdir + '/' +
+                       config.paths.pdfRelPath + '/' +
+                       path.relative(config.paths.pdfPath, targetFilename)
+                      ).replace(new RegExp('\\' + path.sep, 'g'), '/');
         return fullUrl;
     }).catch(function (e) {
         errors.logError(e);

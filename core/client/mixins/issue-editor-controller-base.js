@@ -32,16 +32,18 @@ var IssueEditorControllerMixin = Ember.Mixin.create({
     },
 
     actions: {
-      save: function(pdf) {
+      save: function(uploadResult) {
         var self = this,
             isNew = this.get('isNew'),
             issue = this.get('model');
 
         self.notifications.closePassive();
 
+        debugger;
         issue.set('title', this.get('title'));
         issue.set('published_at', this.get('published_at'));
-        issue.set('pdf', pdf);
+        issue.set('pdf', uploadResult.pdfUrl);
+        issue.set('image', uploadResult.imgUrl);
         issue.set('status', 'draft');
 
         return issue.save().then(function (model) {

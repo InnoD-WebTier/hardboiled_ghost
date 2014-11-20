@@ -128,19 +128,13 @@ issues = {
         options = options || {};
 
         return utils.checkObject(object, docName).then(function (checkedIssueData) {
-          if (options.include) {
-            options.include = prepareInclude(options.include);
-          }
+            if (options.include) {
+              options.include = prepareInclude(options.include);
+            }
 
-          return dataProvider.Issue.add(checkedIssueData.issues[0], options);
+            return dataProvider.Issue.add(checkedIssueData.issues[0], options);
         }).then(function (result) {
-            var issue = result.toJSON();
-
-            // if (issue.status === 'published') {
-            //   // When creating a new post that is published right now, signal the change
-            //   post.statusChanged = true;
-            // }
-            return {issues: [issue]};
+            return {issues: [result.toJSON()]};
         });
     },
 

@@ -43,6 +43,36 @@ var IssueEditorEditController = Ember.ObjectController.extend(IssueEditorControl
       });
     },
 
+    setIssueCover: function (image) {
+      var self = this;
+
+      this.set('image', image);
+
+      if (this.get('isNew')) {
+        return;
+      }
+
+      this.get('model').save().catch(function (errors) {
+        self.showErrors(errors);
+        self.get('model').rollback();
+      });
+    },
+
+    clearIssueCover: function () {
+      var self = this;
+
+      this.set('image', '');
+
+      if (this.get('isNew')) {
+        return;
+      }
+
+      this.get('model').save().catch(function (errors) {
+        self.showErrors(errors);
+        self.get('model').rollback();
+      });
+    },
+
     /**
      * triggered by user manually changing slug
      */
