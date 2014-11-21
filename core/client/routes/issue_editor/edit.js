@@ -77,6 +77,8 @@ var IssueEditorEditRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin
     controller.set('issueId', model.get('id'));
     controller.set('titleValue', model.get('title'));
     controller.set('publishedAtValue', model.get('published_at'));
+    controller.set('seriesValue', model.get('series'));
+    controller.set('previousTagNames', model.get('tags').mapBy('name'));
   },
 
   actions: {

@@ -15,8 +15,11 @@ var IssueEditorNewRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin,
 
   setupController: function (controller, model) {
     this._super(controller, model);
+
     controller.set('publishedAtValue', '');
     controller.set('titleValue', '');
+    controller.set('seriesValue', '');
+    controller.set('previousTagNames', Ember.A());
   },
 
   actions: {

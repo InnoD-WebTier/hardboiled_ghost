@@ -70,18 +70,15 @@ issues = {
     browse: function browse(options) {
         options = options || {};
 
-        // TODO
-        // if (!(options.context && options.context.user)) {
-        //     options.status = 'published';
-        // }
+        if (!(options.context && options.context.user)) {
+            options.status = 'published';
+        }
 
         if (options.include) {
             options.include = prepareInclude(options.include);
         }
 
-        return dataProvider.Issue.findAll(options).then(function (issues) {
-          return {issues: issues.toJSON()};
-        });
+        return dataProvider.Issue.findPage(options);
     },
 
     /**
