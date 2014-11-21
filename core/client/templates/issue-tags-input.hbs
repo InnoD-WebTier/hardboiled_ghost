@@ -1,0 +1,21 @@
+<div class="issue-tags-input-icon">
+    <label class="issue-tag-label icon-tag" for="tags" title="Tags">
+        <span class="hidden">Tags</span>
+    </label>
+</div>
+{{#each controller.tags}}
+    {{#view view.tagView tag=this}}
+        {{view.tag.name}}
+    {{/view}}
+{{/each}}
+<div class="issue-tags-input">
+    <input type="hidden" class="tags-holder">
+    {{view view.tagInputView class="tag-input" value=newTagText}}
+    <ul class="suggestions dropdown-menu dropdown-triangle-bottom" {{bind-attr style=view.overlayStyles}}>
+        {{#each suggestions}}
+            {{#view view.suggestionView suggestion=this}}
+                <a href="javascript:void(0);">{{view.suggestion.highlightedName}}</a>
+            {{/view}}
+        {{/each}}
+    </ul>
+</div>

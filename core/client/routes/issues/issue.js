@@ -1,6 +1,7 @@
 import loadingIndicator from 'ghost/mixins/loading-indicator';
+import ShortcutsRoute from 'ghost/mixins/shortcuts-route';
 
-var IssuesIssueRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin, loadingIndicator, {
+var IssuesIssueRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin, loadingIndicator, ShortcutsRoute, {
     model: function (params) {
         var self = this,
             issue,
@@ -18,6 +19,21 @@ var IssuesIssueRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin, lo
         if (issue) {
             return issue;
         }
+
+        paginationSettings = {
+            id: issueId,
+            status: 'all',
+        };
+
+        return self.store.find('issue', paginationSettings).then(function (records) {
+            var issue = records.get('firstObject');
+
+            if (issue) {
+                return issue;
+            }
+
+            return self.transitionTo('issues.index');
+        });
     },
 
     setupController: function (controller, model) {
@@ -25,11 +41,15 @@ var IssuesIssueRoute = Ember.Route.extend(SimpleAuth.AuthenticatedRouteMixin, lo
         this.controllerFor('issues').set('currentIssue', model);
     },
 
+    shortcuts: {
+        'enter': 'openIssueEditor',
+        'command+backspace, ctrl+backspace': 'deleteIssue'
+    },
     actions: {
         openIssueEditor: function () {
             this.transitionTo('issue_editor.edit', this.get('controller.model'));
         },
-        deletePost: function () {
+        deleteIssue: function () {
             this.send('openModal', 'delete-issue', this.get('controller.model'));
         }
     }

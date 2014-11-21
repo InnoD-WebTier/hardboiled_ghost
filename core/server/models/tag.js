@@ -28,6 +28,14 @@ Tag = ghostBookshelf.Model.extend({
         return this.belongsToMany('Post');
     },
 
+    issues: function () {
+        return this.belongsToMany('Issue');
+    },
+
+    articles: function () {
+        return this.belongsToMany('Article');
+    },
+
     toJSON: function (options) {
         var attrs = ghostBookshelf.Model.prototype.toJSON.call(this, options);
 

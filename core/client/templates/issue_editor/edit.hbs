@@ -9,13 +9,8 @@
 
       <div class="form-group">
         <label>Issue Title</label>
-        {{gh-input class="issue-title" value=titleValue name="issue" focus-out="setTitle" placeholder="Title" selectOnClick="true" autocorrect="off"}}
-      </div>
-
-      <div class="form-group">
-        <label>Issue URL</label>
-        <span class="input-icon icon-link">
-          {{gh-input class="post-setting-slug" value=slugValue name="issue-setting-slug" focus-out="updateSlug" placeholder=slugPlaceholder selectOnClick="true" stopEnterKeyDownPropagation="true"}}
+        <span class="input-icon icon-featured">
+          {{gh-input class="issue-title" value=titleValue name="issue" focus-out="setTitle" placeholder="Title" selectOnClick="true" autocorrect="off"}}
         </span>
       </div>
 
@@ -26,6 +21,24 @@
         </span>
       </div>
 
+      <div class="form-group">
+          <label>Series</label>
+          <span class="input-icon icon-archive">
+              {{gh-input class="issue-series" value=seriesValue name="issue-series" focus-out="setSeries" placeholder="e.g. 17.1" stopEnterKeyDownPropagation="true"}}
+          </span>
+      </div>
+
+      <div class="form-group">
+          <label>Tags</label>
+          {{render 'issue-tags-input'}}
+      </div>
+
+      <div class="form-group">
+        <label>Issue URL</label>
+        <span class="input-icon icon-link">
+          {{gh-input class="post-setting-slug" value=slugValue name="issue-setting-slug" focus-out="updateSlug" placeholder=slugPlaceholder selectOnClick="true" stopEnterKeyDownPropagation="true"}}
+        </span>
+      </div>
 
       <div class="form-group">
         <a class="btn btn-default btn-blue" target="_blank" href="{{hb-issue-pdf-url}}">View PDF</a>

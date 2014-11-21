@@ -48,3 +48,101 @@
   width: 66%;
   margin-left: 10px;
 }
+
+
+// TAGS
+
+.issue-tag-label {
+    display: block;
+    width: 20px;
+    height: 23px;
+    margin: 7px 6px 7px 0;
+    position: relative;
+    &:before {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        font-size: 1.3rem;
+    }
+}
+
+.issue-tags-input-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    align-items: flex-start;
+    justify-content: flex-start;
+
+    height: 100%;
+    width: 100%;
+    border: 1px solid #E0DFD7; // this isn't a variable for some reason :(
+    border-radius: 3px;
+    padding: 0 7px 7px 7px;
+
+    transition: border-color 0.15s linear;
+
+    &:focus {
+        border-color: $brown;
+        outline: 0;
+    }
+
+    .issue-tag-label {
+        margin-bottom: 0;
+    }
+}
+
+.issue-tags-input-icon {
+    flex: 0 0 auto;
+    align-self: auto;
+}
+
+.issue-tags-input {
+    flex: 1 1 85px;
+    position: relative;
+}
+
+#issue-tags {
+
+    input[type="text"].tag-input {
+        display: inline-block;
+        vertical-align: middle;
+        background: transparent;
+        border: none;
+
+        line-height: 1;
+        padding: 0;
+        margin-top: 9px;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .tag {
+        @include icon-after($i-x, 10px, $darkgrey) {
+            margin-left: 1px;
+            vertical-align: 10%;
+            text-shadow: rgba(255,255,255,0.15) 0 1px 0;
+        }
+        display: inline;
+        margin: 6px 3px -1px 0px;
+        padding: 0px 5px;
+        border: 1px solid lighten($midgrey, 33%);
+        border-radius: $rounded;
+        color: $darkgrey;
+        white-space: nowrap;
+        background: $lightgrey;
+
+        @include user-select(none);
+
+        &:hover {
+            cursor: pointer;
+        }
+
+        &:last-of-type {
+            margin-right: 6px;
+        }
+    }
+}

@@ -362,7 +362,6 @@ Post = ghostBookshelf.Model.extend({
                     postCollection
                         .query('where', 'author_id', '=', authorInstance.id);
                 }
-                console.log(_.omit(options, 'page', 'limit'));
                 return postCollection
                     .query('limit', options.limit)
                     .query('offset', options.limit * (options.page - 1))
