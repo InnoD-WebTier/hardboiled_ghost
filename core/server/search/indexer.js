@@ -9,26 +9,40 @@ var document_types = {
 };
 
 var parsers = {
+    user = function (user) {
 
+    },
+    post = function (post) {
+
+    },
+    issue = function (issue) {
+
+    },
+    article = function (article) {
+
+    },
+    tag = function (tag) {
+
+    }
 };
 
 var parse = function (type, data) {
     switch (type)
     {
         case document_types.USER:
-
+            return parsers.user(data);
             break;
         case document_types.POST:
-            
+            return parsers.post(data);
             break;
         case document_types.ISSUE:
-            
+            return parsers.issue(data);
             break;
         case document_types.ARTICLE:
-            
+            return parsers.article(data);
             break;
         case document_types.TAG:
-            
+            return parsers.tag(data);
             break;
         default:
             throw 'Not a valid document type.'
