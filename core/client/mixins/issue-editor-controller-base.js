@@ -20,6 +20,7 @@ var IssueEditorControllerMixin = Ember.Mixin.create({
     }),
     publishedAtValue: boundOneWay('published_at', formatDate),
 
+    slugValue: boundOneWay('slug'),
     //Lazy load the slug generator
     slugGenerator: Ember.computed(function () {
         return SlugGenerator.create({
@@ -124,7 +125,7 @@ var IssueEditorControllerMixin = Ember.Mixin.create({
               return;
           }
 
-          //Validation complete
+          // Validation complete
           this.set('published_at', newPublishedAt);
           var model = this.get('model');
           model.set('published_at', newPublishedAt);

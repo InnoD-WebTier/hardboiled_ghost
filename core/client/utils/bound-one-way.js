@@ -9,11 +9,11 @@
  */
 var BoundOneWay = function (upstream, transform) {
     if (typeof transform !== 'function') {
-        //default to the identity function
+        // transform = null;
         transform = function (value) { return value; };
     }
     return Ember.computed(upstream, function (key, value) {
-        return arguments.length > 1 ? value : transform(this.get(upstream));
+        return arguments.length > 1 ? transform(value) : transform(this.get(upstream));
     });
 };
 
