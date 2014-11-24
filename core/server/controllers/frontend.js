@@ -63,6 +63,24 @@ function getPostPage(options) {
     });
 }
 
+function getReadablesPage(options) {
+    return api.settings.read('postsPerPage').then(function (response) {
+        var postPP = response.settings[0],
+            postsPerPage = parseInt(postPP.value, 10);
+
+        // No negative posts per page, must be number
+        if (!isNaN(postsPerPage) && postsPerPage > 0) {
+            options.limit = postsPerPage;
+        }
+
+        if (options.tag) {
+            return api.readables.browseByTag(options);
+        } else if (options.author) {
+            return api.readables.browseByAuthor(options);
+        }
+    });
+}
+
 function formatPageResponse(posts, page) {
     // Delete email from author for frontend output
     // TODO: do this on API level if no context is available
@@ -74,6 +92,21 @@ function formatPageResponse(posts, page) {
     });
     return {
         posts: posts,
+        pagination: page.meta.pagination
+    };
+}
+
+function formatReadablesResponse(readables, page) {
+    // Delete email from author for frontend output
+    // TODO: do this on API level if no context is available
+    readables = _.each(readables, function (readable) {
+        if (readable.author) {
+            delete readable.author.email;
+        }
+        return readable;
+    });
+    return {
+        readables: readables,
         pagination: page.meta.pagination
     };
 }
@@ -202,61 +235,6 @@ frontendControllers = {
             });
         }).catch(handleError(next));
     },
-    tag: function (req, res, next) {
-        // Parse the page number
-        var pageParam = req.params.page !== undefined ? parseInt(req.params.page, 10) : 1,
-            options = {
-                page: pageParam,
-                tag: req.params.slug
-            };
-
-        // Get url for tag page
-        function tagUrl(tag, page) {
-            var url = config.paths.subdir + '/tag/' + tag + '/';
-
-            if (page && page > 1) {
-                url += 'page/' + page + '/';
-            }
-
-            return url;
-        }
-
-        // No negative pages, or page 1
-        if (isNaN(pageParam) || pageParam < 1 || (req.params.page !== undefined && pageParam === 1)) {
-            return res.redirect(tagUrl(options.tag));
-        }
-
-        return getPostPage(options).then(function (page) {
-            // If page is greater than number of pages we have, redirect to last page
-            if (pageParam > page.meta.pagination.pages) {
-                return res.redirect(tagUrl(options.tag, page.meta.pagination.pages));
-            }
-
-            setReqCtx(req, page.posts);
-            if (page.meta.filters.tags) {
-                setReqCtx(req, page.meta.filters.tags[0]);
-            }
-
-            // Render the page of posts
-            filters.doFilter('prePostsRender', page.posts).then(function (posts) {
-                getActiveThemePaths().then(function (paths) {
-                    var view = template.getThemeViewForTag(paths, options.tag),
-
-                        // Format data for template
-                        result = _.extend(formatPageResponse(posts, page), {
-                            tag: page.meta.filters.tags ? page.meta.filters.tags[0] : ''
-                        });
-
-                    // If the resulting tag is '' then 404.
-                    if (!result.tag) {
-                        return next();
-                    }
-                    setResponseContext(req, res);
-                    res.render(view, result);
-                });
-            });
-        }).catch(handleError(next));
-    },
     author: function (req, res, next) {
         // Parse the page number
         var pageParam = req.params.page !== undefined ? parseInt(req.params.page, 10) : 1,
@@ -281,24 +259,24 @@ frontendControllers = {
             return res.redirect(authorUrl(options.author));
         }
 
-        return getPostPage(options).then(function (page) {
+        return getReadablesPage(options).then(function (page) {
             // If page is greater than number of pages we have, redirect to last page
             if (pageParam > page.meta.pagination.pages) {
                 return res.redirect(authorUrl(options.author, page.meta.pagination.pages));
             }
 
-            setReqCtx(req, page.posts);
+            setReqCtx(req, page.readables);
             if (page.meta.filters.author) {
                 setReqCtx(req, page.meta.filters.author);
             }
 
-            // Render the page of posts
-            filters.doFilter('prePostsRender', page.posts).then(function (posts) {
+            // Render the page of readables
+            filters.doFilter('preAuthorPageRender', page.readables).then(function (readables) {
                 getActiveThemePaths().then(function (paths) {
                     var view = paths.hasOwnProperty('author.hbs') ? 'author' : 'index',
 
                         // Format data for template
-                        result = _.extend(formatPageResponse(posts, page), {
+                        result = _.extend(formatReadablesResponse(readables, page), {
                             author: page.meta.filters.author ? page.meta.filters.author : ''
                         });
 
@@ -372,24 +350,24 @@ frontendControllers = {
             return res.redirect(tagUrl(options.tag));
         }
 
-        return getPostPage(options).then(function (page) {
+        return getReadablesPage(options).then(function (page) {
             // If page is greater than number of pages we have, redirect to last page
             if (pageParam > page.meta.pagination.pages) {
                 return res.redirect(tagUrl(options.tag, page.meta.pagination.pages));
             }
 
-            setReqCtx(req, page.posts);
+            setReqCtx(req, page.readables);
             if (page.meta.filters.tags) {
                 setReqCtx(req, page.meta.filters.tags[0]);
             }
 
-            // Render the page of posts
-            filters.doFilter('prePostsRender', page.posts).then(function (posts) {
+            // Render the page of readables
+            filters.doFilter('preTagReadablesRender', page.readables).then(function (readables) {
                 getActiveThemePaths().then(function (paths) {
                     var view = template.getThemeViewForTag(paths, options.tag),
 
                         // Format data for template
-                        result = _.extend(formatPageResponse(posts, page), {
+                        result = _.extend(formatReadablesResponse(readables, page), {
                             tag: page.meta.filters.tags ? page.meta.filters.tags[0] : ''
                         });
 

@@ -15,13 +15,6 @@
         </div>
 
         <div class="form-group">
-            <label>Publish Date</label>
-            <span class="input-icon icon-calendar">
-                {{gh-input class="issue-publish-date" value=publishedAtValue name="issue-publish-date" focus-out="setPublishedAt" placeholder=publishedAtPlaceholder stopEnterKeyDownPropagation="true"}}
-            </span>
-        </div>
-
-        <div class="form-group">
             <label>Series</label>
             <span class="input-icon icon-archive">
                 {{gh-input class="issue-series" value=seriesValue name="issue-series" focus-out="setSeries" placeholder="e.g. 17.1" stopEnterKeyDownPropagation="true"}}
@@ -29,8 +22,10 @@
         </div>
 
         <div class="form-group">
-            <label>Tags</label>
-            {{render 'issue-tags-input'}}
+            <label>Publish Date</label>
+            <span class="input-icon icon-calendar">
+                {{gh-input class="issue-publish-date" value=publishedAtValue name="issue-publish-date" focus-out="setPublishedAt" placeholder=publishedAtPlaceholder stopEnterKeyDownPropagation="true"}}
+            </span>
         </div>
 
         <div class="form-group">

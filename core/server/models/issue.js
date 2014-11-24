@@ -329,7 +329,7 @@ Issue = ghostBookshelf.Model.extend({
                 // After we're done, we need to figure out what
                 // the limits are for the pagination values.
                 qb = ghostBookshelf.knex(tableName);
-                knex = ghostBookshelf.knex;
+                var knex = ghostBookshelf.knex;
 
                 // TODO: hack for SQLite3. probably won't work for MySql
                 return knex.raw('SELECT DISTINCT strftime("%Y", published_at / 1000, "unixepoch") ' +

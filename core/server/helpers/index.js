@@ -90,7 +90,6 @@ coreHelpers.encode = function (context, str) {
 // context.
 //
 coreHelpers.page_url = function (context, block) {
-    debugger;
     /*jshint unused:false*/
     var url = config.paths.subdir;
 
@@ -326,7 +325,6 @@ coreHelpers.content = function (options) {
             downsize(this.html, truncateOptions)
         );
     }
-    debugger;
 
     return new hbs.handlebars.SafeString(this.html);
 };
@@ -639,6 +637,7 @@ coreHelpers.foreach = function (context, options) {
         ret = '',
         data;
 
+
     if (options.data) {
         data = hbs.handlebars.createFrame(options.data);
     }
@@ -727,6 +726,49 @@ coreHelpers.is = function (context, options) {
     }
     return options.inverse(this);
 };
+
+// ### Readable URL helper
+//
+// *Usage example:*
+// `{{url}}`
+// `{{url absolute="true"}}`
+//
+// Returns the URL for the current object context
+// i.e. If inside a post context will return post permalink
+// absolute flag outputs absolute URL, else URL is relative
+coreHelpers.url = function (options) {
+    var absolute = options && options.hash.absolute;
+
+    if (this.type === 'post') {
+        return config.urlForPost(api.settings, this, absolute);
+    }
+
+    if (this.type === 'issue') {
+        return Promise.resolve(config.urlFor('issue', {issue: this}, absolute));
+    }
+
+    if (this.type === 'article') {
+        return Promise.resolve(config.urlFor('article', {article: this}, absolute));
+    }
+
+    return Promise.resolve(config.urlFor(this, absolute));
+};
+
+// ### Equals Helper
+coreHelpers.equals = function(first, second, options) {
+    if (first === second) {
+        return options.fn(this);
+    }
+    return options.inverse(this);
+}
+
+// ### Not Equals Helper
+coreHelpers.notequals = function(first, second, options) {
+    if (first !== second) {
+        return options.fn(this);
+    }
+    return options.inverse(this);
+}
 
 // ### Has Helper
 // `{{#has tag="video, music"}}`
@@ -906,9 +948,17 @@ registerHelpers = function (adminHbs, assetHash) {
 
     registerThemeHelper('foreach', coreHelpers.foreach);
 
+    registerThemeHelper('equals', coreHelpers.equals);
+
+    registerThemeHelper('notequals', coreHelpers.notequals);
+
     registerThemeHelper('is', coreHelpers.is);
 
     registerThemeHelper('has', coreHelpers.has);
+
+    registerThemeHelper('nottype', coreHelpers.nottype);
+
+    registerThemeHelper('istype', coreHelpers.istype);
 
     registerThemeHelper('page_url', coreHelpers.page_url);
 

@@ -398,6 +398,7 @@ Post = ghostBookshelf.Model.extend({
 
             // Format response of data
             .then(function (resp) {
+                debugger;
                 var totalPosts = parseInt(resp[0].aggregate, 10),
                     calcPages = Math.ceil(totalPosts / options.limit),
                     pagination = {},
