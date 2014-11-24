@@ -521,10 +521,9 @@ frontendControllers = {
             currentArticle;
 
         // No negative article_nums, or article_num 1
-        if (isNaN(articleNumParam) || articleNumParam < 1 || (articleNumParam === 1 && req.route.path === '/issue/:slug/:article_num')) {
+        if (isNaN(articleNumParam) || articleNumParam < 1 || (articleNumParam === 1 && req.route.path === '/issue/:slug/:article_num/')) {
             return res.redirect(config.paths.subdir + '/issue/' + options.issue);
         }
-
 
         return api.issues.read({slug: options.issue, include: 'tags,articles'}).then(function (result) {
             fetchedIssue = result.issues[0];

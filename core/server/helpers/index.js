@@ -93,12 +93,9 @@ coreHelpers.page_url = function (context, block) {
     /*jshint unused:false*/
     var url = config.paths.subdir;
 
-    if (this.tagSlug !== undefined) {
-        url += '/tag/' + this.tagSlug;
-    }
-
-    if (this.authorSlug !== undefined) {
-        url += '/author/' + this.authorSlug;
+    // so hacky don't care
+    if (this.article_num !== undefined) {
+        url += '/issue/' + block.data.root.issue.slug + '/' + (this.article_num + 1);
     }
 
     if (context > 1) {
@@ -107,6 +104,7 @@ coreHelpers.page_url = function (context, block) {
 
     url += '/';
 
+    debugger;
     return url;
 };
 
@@ -728,15 +726,7 @@ coreHelpers.is = function (context, options) {
 };
 
 // ### Readable URL helper
-//
-// *Usage example:*
-// `{{url}}`
-// `{{url absolute="true"}}`
-//
-// Returns the URL for the current object context
-// i.e. If inside a post context will return post permalink
-// absolute flag outputs absolute URL, else URL is relative
-coreHelpers.url = function (options) {
+coreHelpers.readable_url = function (options) {
     var absolute = options && options.hash.absolute;
 
     if (this.type === 'post') {
@@ -956,9 +946,7 @@ registerHelpers = function (adminHbs, assetHash) {
 
     registerThemeHelper('has', coreHelpers.has);
 
-    registerThemeHelper('nottype', coreHelpers.nottype);
-
-    registerThemeHelper('istype', coreHelpers.istype);
+    registerThemeHelper('readable_url', coreHelpers.readable_url);
 
     registerThemeHelper('page_url', coreHelpers.page_url);
 
