@@ -137,7 +137,8 @@ function urlFor(context, data, absolute) {
             urlPath = '/issue/' + data.issue.slug + '/';
             secure = data.issue.secure;
         } else if (context === 'article' && data.article) {
-            urlPath = '/article/' + data.article.slug + '/';
+            urlPath = '/issue/' + data.article.issue.attributes.slug;
+            urlPath += '/' + (data.article.article_num + 1) + '/';
             secure = data.article.secure;
         }
         // other objects are recognised but not yet supported

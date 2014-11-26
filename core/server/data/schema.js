@@ -49,6 +49,7 @@ var db = {
             markdown: {type: 'text', maxlength: 16777215, fieldtype: 'medium', nullable: true},
             html: {type: 'text', maxlength: 16777215, fieldtype: 'medium', nullable: true},
             image: {type: 'text', maxlength: 2000, nullable: true},
+            status: {type: 'string', maxlength: 150, nullable: false, defaultTo: 'draft'},
             article_num: {type: 'integer', nullable: false},
             issue_id: {type: 'integer', nullable: false},
             language: {type: 'string', maxlength: 6, nullable: false, defaultTo: 'en_US'},

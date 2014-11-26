@@ -26,23 +26,6 @@ var IssueTagsInputView = Ember.View.extend({
         this.get('controller').send('reset');
     },
 
-    overlayStyles: Ember.computed('hasFocus', 'controller.suggestions.length', function () {
-        var styles = [],
-            leftPos;
-
-        if (this.get('hasFocus') && this.get('controller.suggestions.length')) {
-            leftPos = this.$().find('#tags').position().left;
-            styles.push('display: block');
-            styles.push('left: ' + leftPos + 'px');
-        } else {
-            styles.push('display: none');
-            styles.push('left', 0);
-        }
-
-        return styles.join(';');
-    }),
-
-
     tagInputView: Ember.TextField.extend({
         focusIn: function () {
             this.get('parentView').set('hasFocus', true);

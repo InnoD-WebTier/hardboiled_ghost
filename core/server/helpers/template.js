@@ -8,7 +8,6 @@ var templates     = {},
 // All template helpers are register as partial view.
 templates.execute = function (name, context) {
     var partial = hbs.handlebars.partials[name];
-    debugger;
 
     if (partial === undefined) {
         errors.logAndThrowError('Template ' + name + ' not found.');
@@ -20,7 +19,6 @@ templates.execute = function (name, context) {
         hbs.registerPartial(partial);
     }
 
-    debugger;
     return new hbs.handlebars.SafeString(partial(context));
 };
 

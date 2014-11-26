@@ -19,7 +19,7 @@ var Issue = DS.Model.extend(NProgressSaveMixin, ValidationEngine, {
     updated_by: DS.belongsTo('user', { async: true }),
     published_at: DS.attr('moment-date'),
     published_by: DS.belongsTo('user', { async: true }),
-    articles: DS.hasMany('article', { async: true }),
+    articles: DS.hasMany('article', { embedded: 'always' }),
     tags: DS.hasMany('tag', { embedded: 'always' }),
     //## Computed issue properties
     isPublished: Ember.computed.equal('status', 'published'),

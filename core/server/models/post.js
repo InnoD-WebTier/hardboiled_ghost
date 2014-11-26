@@ -213,7 +213,7 @@ Post = ghostBookshelf.Model.extend({
             validOptions = {
                 findAll: ['withRelated'],
                 findOne: ['importing', 'withRelated'],
-                findPage: ['page', 'limit', 'status', 'staticPages'],
+                findPage: ['page', 'limit', 'status', 'staticPages', 'featured'],
                 add: ['importing']
             };
 
@@ -317,6 +317,14 @@ Post = ghostBookshelf.Model.extend({
             options.where.status = options.status;
         }
 
+        // Filter on featured posts if given
+        if (!_.isNull(options.featured)) {
+            if (!_.isBoolean(options.featured)) {
+                options.featured = options.featured === 'true' || options.featured === '1' ? true : false;
+            }
+            options.where.featured = options.featured;
+        }
+
         // If there are where conditionals specified, add those
         // to the query.
         if (options.where) {
@@ -398,7 +406,6 @@ Post = ghostBookshelf.Model.extend({
 
             // Format response of data
             .then(function (resp) {
-                debugger;
                 var totalPosts = parseInt(resp[0].aggregate, 10),
                     calcPages = Math.ceil(totalPosts / options.limit),
                     pagination = {},

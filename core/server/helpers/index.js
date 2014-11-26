@@ -95,7 +95,16 @@ coreHelpers.page_url = function (context, block) {
 
     // so hacky don't care
     if (this.article_num !== undefined) {
-        url += '/issue/' + block.data.root.issue.slug + '/' + (this.article_num + 1);
+        url += '/issue/' + block.data.root.issue.slug + '/' + (this.article_num + 1) + '/';
+        return url;
+    }
+
+    if (this.tagSlug !== undefined) {
+        url += '/tag/' + this.tagSlug;
+    }
+
+    if (this.authorSlug !== undefined) {
+        url += '/author/' + this.authorSlug;
     }
 
     if (context > 1) {
@@ -104,7 +113,6 @@ coreHelpers.page_url = function (context, block) {
 
     url += '/';
 
-    debugger;
     return url;
 };
 
@@ -730,7 +738,7 @@ coreHelpers.readable_url = function (options) {
     var absolute = options && options.hash.absolute;
 
     if (this.type === 'post') {
-        return config.urlForPost(api.settings, this, absolute);
+        return Promise.resolve(config.urlForPost(api.settings, this, absolute));
     }
 
     if (this.type === 'issue') {
@@ -946,8 +954,6 @@ registerHelpers = function (adminHbs, assetHash) {
 
     registerThemeHelper('has', coreHelpers.has);
 
-    registerThemeHelper('readable_url', coreHelpers.readable_url);
-
     registerThemeHelper('page_url', coreHelpers.page_url);
 
     registerThemeHelper('is_active', coreHelpers.is_active);
@@ -973,6 +979,8 @@ registerHelpers = function (adminHbs, assetHash) {
     registerAsyncThemeHelper('meta_title', coreHelpers.meta_title);
 
     registerAsyncThemeHelper('post_class', coreHelpers.post_class);
+
+    registerAsyncThemeHelper('readable_url', coreHelpers.readable_url);
 
     registerAsyncThemeHelper('url', coreHelpers.url);
 

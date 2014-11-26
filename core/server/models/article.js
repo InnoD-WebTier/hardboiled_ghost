@@ -92,6 +92,7 @@ Article = ghostBookshelf.Model.extend({
      * @return {Promise(ghostBookshelf.Models.Article)} Updated Article model
      */
     updateTags: function (newArticle, attr, options) {
+        debugger;
         var self = this;
         options = options || {};
 
@@ -100,6 +101,11 @@ Article = ghostBookshelf.Model.extend({
         }
 
         return Article.forge({id: newArticle.id}).fetch({withRelated: ['tags'], transacting: options.transacting}).then(function (article) {
+            // HACK: ??? not sure
+            if (!article) {
+                return;
+            }
+
             var tagOps = [];
 
             // remove all existing tags from the article

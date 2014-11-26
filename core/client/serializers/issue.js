@@ -4,6 +4,7 @@ var IssueSerializer = ApplicationSerializer.extend(DS.EmbeddedRecordsMixin, {
     // settings for the EmbeddedRecordsMixin.
     attrs: {
         tags: { embedded: 'always' },
+        articles: { embedded: 'always' },
     },
 
     extractSingle: function (store, primaryType, payload) {
@@ -31,6 +32,9 @@ var IssueSerializer = ApplicationSerializer.extend(DS.EmbeddedRecordsMixin, {
         // @TODO: remove this once the situation becomes clearer what to do.
         if (relationshipName === 'tags') {
             return 'tag';
+        }
+        if (relationshipName === 'article') {
+            return 'article';
         }
 
         return relationshipName;

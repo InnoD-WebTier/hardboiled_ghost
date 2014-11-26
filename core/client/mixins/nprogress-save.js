@@ -3,7 +3,7 @@ var NProgressSaveMixin = Ember.Mixin.create({
         if (options && options.disableNProgress) {
             return this._super(options);
         }
-        
+
         NProgress.start();
         return this._super(options).then(function (value) {
             NProgress.done();

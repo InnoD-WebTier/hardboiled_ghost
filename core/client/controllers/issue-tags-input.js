@@ -83,6 +83,7 @@ var IssueTagsInputController = Ember.Controller.extend({
         deleteTag: function (tag) {
             this.get('tags').removeObject(tag);
             this.get('tagEnteredOrder').removeObject(tag.get('name'));
+            this.send('setTags');
         },
 
         deleteLastTag: function () {

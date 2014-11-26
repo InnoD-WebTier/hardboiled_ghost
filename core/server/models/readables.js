@@ -28,10 +28,8 @@ Readable = ghostBookshelf.Model.extend({}, {
             // whitelists for the `options` hash argument on methods, by method name.
             // these are the only options that can be passed to Bookshelf / Knex.
             validOptions = {
-                findAll: ['withRelated'],
-                findOne: ['importing', 'withRelated'],
-                findPage: ['page', 'limit', 'status'],
-                add: ['importing']
+                findPageByAuthor: ['page', 'limit'],
+                findPageByTag: ['page', 'limit'],
             };
 
         if (validOptions[methodName]) {
@@ -39,23 +37,6 @@ Readable = ghostBookshelf.Model.extend({}, {
         }
 
         return options;
-    },
-
-    /**
-     * Filters potentially unsafe model attributes, so you can pass them to Bookshelf / Knex.
-     * @param {Object} data Has keys representing the model's attributes/fields in the database.
-     * @return {Object} The filtered results of the passed in data, containing only what's allowed in the schema.
-     */
-    filterData: function (data) {
-        var permittedAttributes = this.prototype.permittedAttributes(),
-            filteredData;
-
-        // manually add 'tags' attribute since it's not in the schema
-        permittedAttributes.push('tags');
-
-        filteredData = _.pick(data, permittedAttributes);
-
-        return filteredData;
     },
 
     /**
@@ -80,7 +61,6 @@ Readable = ghostBookshelf.Model.extend({}, {
             return;
         }
 
-        debugger;
         var authorInstance = ghostBookshelf.model('User').forge({slug: options.author}),
             readablesResponse;
 
@@ -110,13 +90,21 @@ Readable = ghostBookshelf.Model.extend({}, {
                 'series'
             ],
 
+            withRelatedColumns = {
+                'issue_id as issue': ['issue_id', 'issue', 'Issue'],
+            },
+
             // hacky way to get types from readables
             uniqueColumns = {
                 'featured':       'post',
                 'article_num':    'article',
             },
 
-            all_cols = _.union(columns, _.keys(uniqueColumns)),
+            all_cols = _.union(
+                columns,
+                _.keys(withRelatedColumns),
+                _.keys(uniqueColumns)
+            ),
 
             _post        = ghostBookshelf.model('Post').forge(),
             postTable    = _post.tableName,
@@ -126,7 +114,7 @@ Readable = ghostBookshelf.Model.extend({}, {
             _article     = ghostBookshelf.model('Article').forge(),
             articleTable = _article.tableName,
             articleId    = articleTable + "." + _article.idAttribute,
-            articleWhere = {};
+            articleWhere = _.zipObject([articleTable + '.status'], ['published']);
 
         return authorInstance.fetch().then(function() {
             // If we have a tag instance we need to modify our query.
@@ -178,6 +166,21 @@ Readable = ghostBookshelf.Model.extend({}, {
                         result.type = type;
                         return;
                     }
+
+                    var column, as, modelType;
+                    // fetch related
+                    _.forOwn(withRelatedColumns, function(relVal) {
+                        column = relVal[0];
+                        as = relVal[1];
+                        modelType = relVal[2];
+                        if (key === as) {
+                            if (val === column) { return; }
+                            result[key] = ghostBookshelf.model(modelType).forge({id: val}).fetch().then(function (related) {
+                                result[key] = related;
+                            });
+                            return;
+                        }
+                    });
 
                     // fix remaining keys
                     if (fixedKey === val) {
@@ -261,7 +264,6 @@ Readable = ghostBookshelf.Model.extend({}, {
                 meta.filters.author = authorInstance.toJSON();
             }
 
-            debugger;
             return data;
         })
         .catch(errors.logAndThrowError);
@@ -312,12 +314,16 @@ Readable = ghostBookshelf.Model.extend({}, {
                 'title',
                 'slug',
                 'image',
-                'author_id as author',
                 'published_at',
                 'updated_at',
                 'html',
-                'series'
+                'series',
             ],
+
+            withRelatedColumns = {
+                'author_id as author' : ['author_id', 'author', 'User'],
+                'issue_id as issue': ['issue_id', 'issue', 'Issue'],
+            },
 
             // hacky way to get types from readables
             uniqueColumns = {
@@ -326,7 +332,11 @@ Readable = ghostBookshelf.Model.extend({}, {
                 'article_num':    'article',
             },
 
-            all_cols = _.union(columns, _.keys(uniqueColumns)),
+            all_cols = _.union(
+                columns,
+                _.keys(withRelatedColumns),
+                _.keys(uniqueColumns)
+            ),
 
             _post        = ghostBookshelf.model('Post').forge(),
             postTable    = _post.tableName,
@@ -341,7 +351,7 @@ Readable = ghostBookshelf.Model.extend({}, {
             _article     = ghostBookshelf.model('Article').forge(),
             articleTable = _article.tableName,
             articleId    = articleTable + "." + _article.idAttribute,
-            articleWhere = {};
+            articleWhere = _.zipObject([articleTable + '.status'], ['published']);
 
         return tagInstance.fetch().then(function() {
             // If we have a tag instance we need to modify our query.
@@ -390,30 +400,37 @@ Readable = ghostBookshelf.Model.extend({}, {
                 return uniqueColumns[key];
             }
 
+            // FIXME: hacky way to mimick regular calls to API
             readablesResponse = _.map(resp, function(r) {
-                // FIXME: hacky way to mimick regular calls to API
                 return _.transform(r, function(result, val, key) {
                     delete result[key]
 
                     var fixedKey = key.slice(1, -1);
 
+                    var brk, column, as, modelType;
+                    // fetch related
+                    _.forOwn(withRelatedColumns, function(relVal) {
+                        column = relVal[0];
+                        as = relVal[1];
+                        modelType = relVal[2];
+                        if (key === as) {
+                            if (val === column) { return; }
+                            result[key] = ghostBookshelf.model(modelType).forge({id: val}).fetch().then(function (related) {
+                                result[key] = related;
+                            });
+                            brk = true;
+                            return false;
+                        }
+                    });
+                    if (brk) { return; }
+
                     // assign type
                     var type = typeForUniqueColumn(fixedKey, val);
                     if (type) {
                         result.type = type;
-                        return;
                     }
 
-                    // fetch author
-                    if (key === 'author') {
-                        if (val === 'author_id') { return; }
-                        result[key] = ghostBookshelf.model('User').forge({id: val}).fetch().then(function (author) {
-                            result[key] = author;
-                        });
-                        return;
-                    }
-
-                    // fix remaining keys
+                    // filter remaining keys
                     if (fixedKey === val) {
                         return;
                     }
@@ -498,11 +515,9 @@ Readable = ghostBookshelf.Model.extend({}, {
                 }
             }
 
-            if (tagInstance) {
-                meta.filters = {};
-                if (!tagInstance.isNew()) {
-                    meta.filters.tags = [tagInstance.toJSON()];
-                }
+            meta.filters = {};
+            if (!tagInstance.isNew()) {
+                meta.filters.tags = [tagInstance.toJSON()];
             }
 
             return data;

@@ -438,7 +438,7 @@ Issue = ghostBookshelf.Model.extend({
         }
 
         // Add related objects
-        options.withRelated = _.union(['tags', 'articles'], options.include);
+        options.withRelated = this.buildWithRelated(options.include);
 
         // If a query param for a tag is attached
         // we need to fetch the tag model to find its id
@@ -576,10 +576,10 @@ Issue = ghostBookshelf.Model.extend({
         // }
         delete data.status;
 
-        //TODO: should be in *every* query to issue
-        // Add related objects
         options.withRelated = this.buildWithRelated(options.include);
-        return ghostBookshelf.Model.findOne.call(this, data, options);
+        return ghostBookshelf.Model.findOne.call(this, data, options).then(function (issue) {
+            return issue;
+        });
     },
 
     /**
@@ -588,19 +588,45 @@ Issue = ghostBookshelf.Model.extend({
      * **See:** [ghostBookshelf.Model.edit](base.js.html#edit)
      */
     edit: function (data, options) {
-        var self = this;
+        var self = this,
+            found;
         options = options || {};
 
-        return ghostBookshelf.Model.edit.call(this, data, options).then(function (issue) {
-            return self.findOne({status: 'all', id: options.id}, options)
-                .then(function (found) {
-                    if (found) {
-                        // Pass along the updated attributes for checking status changes
-                        found._updatedAttributes = issue._updatedAttributes;
-                        return found;
-                    }
+        return self.findOne({
+            status: 'all',
+            id: options.id,
+        }, _.extend(options, {
+            include: ['tags', 'articles', 'articles.tags']
+        })).then(function (result) {
+            found = result;
+            var updateArticles = [];
+            if (found.attributes.status !== data.status) {
+                // Update status of all containing articles
+                var relatedArticles = found.related('articles').models;
+                updateArticles = _.map(relatedArticles, function(article) {
+                    var attr = article.attributes;
+                    attr.status = data.status;
+                    _.forEach(_.keys(article.relations), function(relation) {
+                        attr[relation] = _.map(article.relations[relation].models, function (model) {
+                            return model.attributes;
+                        });
+                    });
+                    return ghostBookshelf.model('Article')
+                        .edit(attr, {id: attr.id, context: options.context});
                 });
+            }
+            return Promise.all(updateArticles);
+        }).then(function() {
+            return ghostBookshelf.Model.edit.call(self, data, options).then(function (issue) {
+                return self.findOne({status: 'all', id: options.id}, options)
+                    .then(function (newFound) {
+                        // Pass along the updated attributes for checking status changes
+                        newFound._updatedAttributes = issue._updatedAttributes;
+                        return newFound;
+                    });
+            });
         });
+
     },
 
     /**
@@ -629,8 +655,12 @@ Issue = ghostBookshelf.Model.extend({
         var store = storage.getStorage(),
             pdfPath = options.pdf;
 
-        return this.forge({id: id}).fetch({withRelated: ['tags']}).then(function destroyTagsAndIssue(issue) {
-            return issue.related('tags').detach().then(function () {
+        return this.forge({id: id}).fetch({withRelated: ['tags', 'articles']}).then(function destroyTagsAndIssue(issue) {
+            return Promise.all(_.map(issue.related('articles').models, function (article) {
+                return ghostBookshelf.model('Article').destroy({id: article.id, context: options.context});
+            })).then(function() {
+                return issue.related('tags').detach();
+            }).then(function() {
                 return issue.destroy(options);
             }).then(function () {
                 return store.deletePdf(pdfPath);

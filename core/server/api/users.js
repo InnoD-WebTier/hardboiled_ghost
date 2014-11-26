@@ -137,7 +137,6 @@ users = {
         return utils.checkObject(object, docName).then(function (data) {
             // Edit operation
             editOperation = function () {
-                debugger;
                 return dataProvider.User.edit(data.users[0], options)
                     .then(function (result) {
                         if (result) {

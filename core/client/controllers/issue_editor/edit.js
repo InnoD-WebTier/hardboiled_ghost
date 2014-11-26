@@ -25,9 +25,9 @@ var IssueEditorEditController = Ember.ObjectController.extend(IssueEditorControl
 
   actions: {
     togglePublished: function() {
-      var self   = this,
-      issue      = this.get('model'),
-      prevStatus = issue.get('status');
+      var self       = this,
+          issue      = this.get('model'),
+          prevStatus = issue.get('status');
 
       if (prevStatus === 'published') {
         issue.set('status', 'draft');

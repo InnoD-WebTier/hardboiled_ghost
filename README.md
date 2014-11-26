@@ -19,3 +19,7 @@ TODO
 - Search
 - Carousel
 - Current Issue?
+
+- New articles should take the status of their containing issue automatically
+  (i.e., if an issue is published, then new articles added to that issue
+   should be immediately published)

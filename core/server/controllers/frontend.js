@@ -49,7 +49,16 @@ function getIssueYear(options) {
     return api.issues.browseByYear(options);
 }
 
-function getPostPage(options) {
+function getFeaturedPosts() {
+    options = {
+        featured: true,
+        include: 'author,tags,fields',
+        limit: 50, // ridiculous, don't care
+    };
+    return api.posts.browse(options);
+}
+
+function getPostPage(options, withFeatured) {
     return api.settings.read('postsPerPage').then(function (response) {
         var postPP = response.settings[0],
             postsPerPage = parseInt(postPP.value, 10);
@@ -59,6 +68,10 @@ function getPostPage(options) {
             options.limit = postsPerPage;
         }
         options.include = 'author,tags,fields';
+        if (!withFeatured) {
+            options.featured = false;
+        }
+
         return api.posts.browse(options);
     });
 }
@@ -81,9 +94,17 @@ function getReadablesPage(options) {
     });
 }
 
-function formatPageResponse(posts, page) {
+function formatPageResponse(posts, page, featured) {
     // Delete email from author for frontend output
     // TODO: do this on API level if no context is available
+    if (featured) {
+        featured = _.each(featured, function(f) {
+            if (f.author) {
+                delete f.author.email;
+            }
+            return f;
+        });
+    }
     posts = _.each(posts, function (post) {
         if (post.author) {
             delete post.author.email;
@@ -91,6 +112,7 @@ function formatPageResponse(posts, page) {
         return post;
     });
     return {
+        featured: featured,
         posts: posts,
         pagination: page.meta.pagination
     };
@@ -203,14 +225,25 @@ frontendControllers = {
         var pageParam = req.params.page !== undefined ? parseInt(req.params.page, 10) : 1,
             options = {
                 page: pageParam
-            };
+            },
+            featured;
 
         // No negative pages, or page 1
         if (isNaN(pageParam) || pageParam < 1 || (pageParam === 1 && req.route.path === '/page/:page/')) {
             return res.redirect(config.paths.subdir + '/');
         }
 
-        return getPostPage(options).then(function (page) {
+        var featuredQuery = function() { return; }
+        if (pageParam === 1) {
+            featuredQuery = getFeaturedPosts;
+        }
+
+        return Promise.join(featuredQuery()).then(function(result) {
+            if (result && result[0] && result[0].posts && !_.isEmpty(result[0].posts)) {
+                featured = result[0].posts;
+            }
+            return getPostPage(options, false);
+        }).then(function (page) {
             // If page is greater than number of pages we have, redirect to last page
             if (pageParam > page.meta.pagination.pages) {
                 return res.redirect(page.meta.pagination.pages === 1 ? config.paths.subdir + '/' : (config.paths.subdir + '/page/' + page.meta.pagination.pages + '/'));
@@ -230,7 +263,7 @@ frontendControllers = {
                     }
 
                     setResponseContext(req, res);
-                    res.render(view, formatPageResponse(posts, page));
+                    res.render(view, formatPageResponse(posts, page, featured));
                 });
             });
         }).catch(handleError(next));

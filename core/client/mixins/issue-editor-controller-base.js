@@ -36,7 +36,7 @@ var IssueEditorControllerMixin = Ember.Mixin.create({
 
     actions: {
       save: function(uploadResult) {
-        var self = this,
+        var self  = this,
             isNew = this.get('isNew'),
             issue = this.get('model');
 
@@ -60,8 +60,8 @@ var IssueEditorControllerMixin = Ember.Mixin.create({
       },
 
       setTitle: function (title) {
-          var self = this,
-              model = this.get('model'),
+          var self         = this,
+              model        = this.get('model'),
               currentTitle = model.get('title') || '';
 
           // Only update if the title has changed
@@ -91,11 +91,11 @@ var IssueEditorControllerMixin = Ember.Mixin.create({
        * Action sent by post settings menu view.
        */
       setPublishedAt: function (userInput) {
-          var errMessage = '',
+          var errMessage     = '',
               newPublishedAt = parseDateString(userInput),
-              model = this.get('model'),
-              publishedAt = model.get('published_at'),
-              self = this;
+              model          = this.get('model'),
+              publishedAt    = model.get('published_at'),
+              self           = this;
 
           if (!userInput) {
               //Clear out the published_at field for a draft
@@ -143,8 +143,8 @@ var IssueEditorControllerMixin = Ember.Mixin.create({
       },
 
       setSeries: function (series) {
-          var self = this,
-              model = this.get('model'),
+          var self          = this,
+              model         = this.get('model'),
               currentSeries = model.get('series') || '';
 
           // Only update if the series has changed
@@ -169,7 +169,8 @@ var IssueEditorControllerMixin = Ember.Mixin.create({
       },
 
       setTags: function () {
-          var model = this.get('model');
+          var self  = this,
+              model = this.get('model');
 
           if (model.get('isNew')) {
               return;

@@ -7,7 +7,7 @@ var IssueAdapter = EmbeddedRelationAdapter.extend({
             url = this.buildURL(type.typeKey);
 
         // make the server return with the tags embedded
-        url = url + '?include=tags';
+        url = url + '?include=tags,articles';
 
         // use the IssueSerializer to transform the model back into
         // an array with a post object like the API expects
@@ -23,7 +23,7 @@ var IssueAdapter = EmbeddedRelationAdapter.extend({
             url = this.buildURL(type.typeKey, id);
 
         // make the server return with the tags embedded
-        url = url + '?include=tags';
+        url = url + '?include=tags,articles';
 
         // use the IssueSerializer to transform the model back into
         // an array of posts objects like the API expects
