@@ -8,6 +8,7 @@ Install Node.js and NPM (Node Package Manager). Then:
     $ grunt init (and grunt prod if you want to run Ghost in production mode)
     $ grunt dev
 
+(make sure you're inside the directory when running the last 3 commands)
 
 TODO
 ====
