@@ -1,3 +1,14 @@
+Quickstart:
+===========
+
+Install Node.js and NPM (Node Package Manager). Then:
+
+    npm install -g grunt-cli
+    npm install
+    grunt init (and grunt prod if you want to run Ghost in production mode)
+    grunt dev
+
+
 TODO
 ====
 
