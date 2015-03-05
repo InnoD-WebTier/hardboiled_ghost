@@ -26,8 +26,5 @@
     "validator-js": "3.4.0",
     "google-caja": "5669.0.0",
     "slip": "~1.1.0"
-  },
-  "resolutions": {
-    "ember": "1.10.0"
   }
 }
