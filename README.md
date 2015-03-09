@@ -19,7 +19,7 @@ There are essentially three components to the Ghost app:
 
 - An Ember JS app as the CMS for administrators and authors. This part is dynamic and routed mostly on the front-end.
 - A **static** website for regular users to get content. The static site is themed.
-- The backend: this includes a database, routes for the static frontend, an API to fetch data, and controllers to coerce the data into the right place and format for a user on the frontend.
+- The backend: this includes a database, routes for the static frontend, an API to fetch data, and controllers to coerce the data into the right place and format for a user on the frontend using Ember's front-end router.
 
 Here's the important part of the directory structure for the app. An explanation of the numbered items follows.
 
