@@ -117,7 +117,6 @@ I _highly_ recommend going through the EmberJS [tutorial](http://emberjs.com/). 
 ToDo
 ====
 
-<<<<<<< HEAD
 Backend
 --
 
