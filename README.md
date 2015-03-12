@@ -102,26 +102,55 @@ Individual files are **bolded**, directories are not. Let me know if you have an
 
 I _highly_ recommend going through the EmberJS [tutorial](http://emberjs.com/). It may be tedious but you will be a thousand times more prepared to dive in and contribute. In general, reading the documentation for Ember and the other things I've linked above is key.
 
-TODO
+ToDo
 ====
 
-- Styling
-    - Home page
-    - Route for about page
-    - Side bar
-    - Author page
-    - Tag page
-    - Issue list page
-    - Issue/Articles page
-    - Issue/Articles page 2/3/4/...
-    - Static page
+Backend
+--
 
-- CanThis for Issues and Articles
-- Non-static about page: Ben
-- Search
-- Carousel
-- Current Issue?
+Things marked with **<!!!>** have higher priority.
 
-- New articles should take the status of their containing issue automatically
-  (i.e., if an issue is published, then new articles added to that issue
-   should be immediately published)
+- **<!!!>** Search
+  - See `search` directory above. Check out [norch](https://github.com/fergiemcdowall/norch), [ghostHunter](https://github.com/jamalneufeld/ghostHunter), or [lunr.js](http://lunrjs.com/).
+  - I think the best way to handle this is to index all Issues, Articles, and Posts when they are saved to the database.
+- Magazine issues should not have a title.
+  - Currently, they do. HB Magazines only have an "Issue Number", which is represented as its "series" in the Schema for Issue on the backend.
+- Magazines should not be allowed to publish until they have at least one Article.
+- Permissions for Editor, Author, and User need to be tested.
+- **<!!!>** Need to be able to import data from Hardboiled Wordpress. (All posts and users) 
+  - A lot of this has been done [in this repo](https://github.com/InnoD-WebTier/wp2ghost), but it's really slow and buggy right now. You'll need to get access to the Hardboiled Wordpress to be able to export their data (and then import it into Ghost).
+- Tags for Issues and Articles seem wonky...
+- Getting the first page of a PDF is SUPER hacky right now!!!
+  - I upload the PDF to Cloudinary because they have a nice API for getting images from PDF, and then query the image of the first page from there. **THIS IS A TERRIBLE SOLUTION** someone should fix this or just make HB upload the cover photo manually.
+  - Username for [Cloudinary](https://cloudinary.com) account is `aykamko@gmail.com`. Ask Maruchi for the password.
+- Posts need to be able to be marked as carousel-able.
+  - Their cover image should be displayed in the carousel on the front page.
+- New Articles should take the status of the Issue that contains them automatically
+  - i.e., if an Issue is published, then new Articles added to that issue _after the Issue has been published_
+   should be immediately published
+
+Frontend
+--
+
+We were originally using [blog.ghost.org](http://blog.ghost.org/) and [Medium](https://medium.com/) for inspiration/motivation.
+
+- Comments for posts! [https://disqus.com/](https://disqus.com/)
+- Things that need to be styled:
+  - CMS for Issue and Article creation
+  - Sidebar
+  - Authors should have a little card with their info in their posts, articles, and search (scroll to bottom of [this post](http://blog.ghost.org/wishlist/))
+  - Tag and Author "search" pages
+  - Table of contents for Articles
+  - Carousel on front page (this needs to be hooked up to backend as well)
+
+- An About Page for the Hardboiled Team
+  - Like [this](http://hardboiled.berkeley.edu/about/) but much more sexy with pictures and bios and pretty/interesting things.
+  - The About Page should be a **static URL Post** (probably).
+
+- The only "tabs" Hardboiled wants is Home, About, and Issues.
+  - Archived Issues on their [current site](http://hardboiled.berkeley.edu/about/) becomes Issues for us.
+  - Web Exclusives are merged in as regular Posts.
+  - The Course tab from their current site becomes a *hidden* static page, only accessible via direct URL.
+  - No Photos tab.
+  - No Contact tab, just a footer.
+  - No explicit "Home" tab. Clicking on the HB logo brings you to Home page.
