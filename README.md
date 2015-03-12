@@ -10,6 +10,18 @@ Install Node.js and NPM (Node Package Manager). Then:
 
 (make sure you're inside the directory when running the last 3 commands)
 
+Workflow
+========
+
+- Backend
+  - Run `grunt dev` from the root and start hackin
+  - Learn to use the Node Debugger. You will be infinitely grateful.
+- Frontend theme
+  - Go to `content/themes/hb_theme` and run `grunt watch`. This will watch for any changes in the SCSS and compile automatically. (i.e. You can just refresh the page to see your changes)
+  - Use the Javascript debugger!
+
+
+
 Hardboiled Node App
 ===================
 
