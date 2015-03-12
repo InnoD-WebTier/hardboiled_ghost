@@ -135,7 +135,7 @@ Frontend
 We were originally using [blog.ghost.org](http://blog.ghost.org/) and [Medium](https://medium.com/) for inspiration/motivation.
 
 - Comments for posts! [https://disqus.com/](https://disqus.com/)
-- Things that need to be styled:
+- Things that need to be styled: (Abhinav)
   - CMS for Issue and Article creation
   - Sidebar
   - Authors should have a little card with their info in their posts, articles, and search (scroll to bottom of [this post](http://blog.ghost.org/wishlist/))
@@ -143,7 +143,7 @@ We were originally using [blog.ghost.org](http://blog.ghost.org/) and [Medium](h
   - Table of contents for Articles
   - Carousel on front page (this needs to be hooked up to backend as well)
 
-- An About Page for the Hardboiled Team
+- An About Page for the Hardboiled Team (Robert)
   - Like [this](http://hardboiled.berkeley.edu/about/) but much more sexy with pictures and bios and pretty/interesting things.
   - The About Page should be a **static URL Post** (probably).
 
