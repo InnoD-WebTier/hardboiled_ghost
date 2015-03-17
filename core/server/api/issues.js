@@ -123,7 +123,6 @@ issues = {
      */
     add: function add(object, options) {
         options = options || {};
-
         return utils.checkObject(object, docName).then(function (checkedIssueData) {
             if (options.include) {
               options.include = prepareInclude(options.include);
@@ -153,6 +152,12 @@ issues = {
           options.include = prepareInclude(options.include);
         }
 
+        issueStatus = object.issues[0]['status']
+        articleNum = object.issues[0]['article_length']
+
+        if (issueStatus === 'published' && articleNum === 0) {
+            return Promise.reject(new errors.NotFoundError('You cannot publish issues with no articles'));
+        }
         return dataProvider.Issue.edit(checkedIssueData.issues[0], options);
       }).then(function (result) {
         if (result) {
