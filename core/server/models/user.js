@@ -416,7 +416,7 @@ User = ghostBookshelf.Model.extend({
                     }
                 }).then(function () {
                     options.status = 'all';
-                    return self.findOne({id: user.id}, options);
+                    return self.findOne({id: user.id, status: 'all'}, options);
                 });
             }
             return user;

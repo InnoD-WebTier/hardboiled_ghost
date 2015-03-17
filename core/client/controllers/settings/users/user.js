@@ -10,6 +10,15 @@ var SettingsUserController = Ember.ObjectController.extend({
 
     lastPromise: null,
 
+    isActive: Ember.computed('user.status', function (key, value) {
+        // setter
+        if (arguments.length > 1) {
+            this.set('user.status', value ? 'active' : 'inactive');
+        }
+        // getter
+        return this.get('user.status') == 'active';
+    }),
+
     coverDefault: Ember.computed('ghostPaths', function () {
         return this.get('ghostPaths.url').asset('/shared/img/user-cover.png');
     }),

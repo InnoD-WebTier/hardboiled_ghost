@@ -14,6 +14,7 @@ var User = DS.Model.extend(NProgressSaveMixin, SelectiveSaveMixin, ValidationEng
     bio: DS.attr('string'),
     website: DS.attr('string'),
     location: DS.attr('string'),
+    title: DS.attr('string', {defaultValue: 'Member'}),
     accessibility: DS.attr('string'),
     status: DS.attr('string'),
     language: DS.attr('string', {defaultValue: 'en_US'}),

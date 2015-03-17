@@ -289,7 +289,8 @@ ghostBookshelf.Model = ghostBookshelf.Model.extend({
         if (options.importing) {
             model.hasTimestamps = false;
         }
-        return model.save(null, options);
+        var mo = model.save(null, options);
+        return mo;
     },
 
     /**

@@ -5,6 +5,7 @@ var Promise         = require('bluebird'),
     dataProvider    = require('../models'),
     canThis         = require('../permissions').canThis,
     errors          = require('../errors'),
+    user            = require('../models').User,
     utils           = require('./utils'),
 
     docName         = 'posts',
@@ -103,12 +104,21 @@ posts = {
      */
     edit: function edit(object, options) {
         return canThis(options.context).edit.post(options.id).then(function () {
+            var checkedPostDataCopy;
+            var postStatus = object.posts[0].status;
             return utils.checkObject(object, docName).then(function (checkedPostData) {
+                checkedPostDataCopy = checkedPostData;
                 if (options.include) {
                     options.include = prepareInclude(options.include);
                 }
-
-                return dataProvider.Post.edit(checkedPostData.posts[0], options);
+                var user_id = options.context.user;
+                return dataProvider.User.findOne({id: user_id}, {context: options.context});    
+            }).then(function (user) {
+                var userRole = user.related('roles').models[0];
+                if (userRole.attributes.name === 'Author' && postStatus === 'published') {
+                    return Promise.reject(new errors.NoPermissionError('You do not have permission to add posts.'));
+                }
+                return dataProvider.Post.edit(checkedPostDataCopy.posts[0], options);
             }).then(function (result) {
                 if (result) {
                     var post = result.toJSON();
@@ -120,7 +130,6 @@ posts = {
                     }
                     return {posts: [post]};
                 }
-
                 return Promise.reject(new errors.NotFoundError('Post not found.'));
             });
         }, function () {
@@ -139,21 +148,29 @@ posts = {
      */
     add: function add(object, options) {
         options = options || {};
-
         return canThis(options.context).add.post().then(function () {
+            var checkedPostDataCopy;
+            var postStatus = object.posts[0].status;
             return utils.checkObject(object, docName).then(function (checkedPostData) {
+                checkedPostDataCopy = checkedPostData;
                 if (options.include) {
                     options.include = prepareInclude(options.include);
                 }
-
-                return dataProvider.Post.add(checkedPostData.posts[0], options);
+                var user_id = options.context.user;
+                return dataProvider.User.findOne({id: user_id}, {context: options.context});    
+            }).then(function (user) {
+                var userRole = user.related('roles').models[0];
+                if (userRole.attributes.name === 'Author' && postStatus === 'published') {
+                    return Promise.reject(new errors.NoPermissionError('You do not have permission to add posts.'));
+                }
+                return dataProvider.Post.add(checkedPostDataCopy.posts[0], options);
             }).then(function (result) {
                 var post = result.toJSON();
-
                 if (post.status === 'published') {
                     // When creating a new post that is published right now, signal the change
                     post.statusChanged = true;
                 }
+
                 return {posts: [post]};
             });
         }, function () {

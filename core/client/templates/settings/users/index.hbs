@@ -12,7 +12,7 @@ $(document).ready(function() {
     </section>
 </header>
 
-{{#view "settings/users/users-list-view" tagName="section" class="content settings-users js-settings-users" }}
+{{#view "settings/users/users-list-view" tagName="section" class="content settings-users" }}
     {{#if invitedUsers}}
 
         <section class="object-list invited-users">
@@ -47,6 +47,33 @@ $(document).ready(function() {
         <h4 class="object-list-title">Active users</h4>
 
         {{#each activeUsers itemController="settings/users/user"}}
+            {{#link-to 'settings.users.user' this class="object-list-item" }}
+                <span class="object-list-item-figure" {{bind-attr style=image}}>
+                    <span class="hidden">Photo of {{unbound name}}</span>
+                </span>
+
+                <div class="object-list-item-body">
+                    <span class="name">
+                        {{name}}
+                    </span>
+                    <br>
+                    <span class="description">Last seen: {{unbound last_login}}</span>
+                </div>
+                <aside class="object-list-item-aside">
+                    {{#unless isAuthor}}
+                        {{#each roles}}
+                            <span class="role-label {{unbound lowerCaseName}}">{{name}}</span>
+                        {{/each}}
+                    {{/unless}}
+                </aside>
+            {{/link-to}}
+        {{/each}}
+    </section>
+
+    <section class="object-list active-users">
+        <h4 class="object-list-title">Inactive users</h4>
+
+        {{#each inactiveUsers itemController="settings/users/user"}}
             {{#link-to 'settings.users.user' this class="object-list-item" }}
                 <span class="object-list-item-figure" {{bind-attr style=image}}>
                     <span class="hidden">Photo of {{unbound name}}</span>
