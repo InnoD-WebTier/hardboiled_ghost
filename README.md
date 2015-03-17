@@ -120,7 +120,7 @@ ToDo
 Backend
 --
 
-Things marked with **<!!!>** have higher priority.
+Things marked with **<!!!>** have higher priority. Permissions for Editor, Author, and User are only working on Ben's branch. 
 
 - **<!!!>** Search
   - See `search` directory above. Check out [norch](https://github.com/fergiemcdowall/norch), [ghostHunter](https://github.com/jamalneufeld/ghostHunter), or [lunr.js](http://lunrjs.com/).
