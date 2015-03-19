@@ -23,6 +23,7 @@ var IssueEditorControllerMixin = Ember.Mixin.create({
     slugValue: boundOneWay('slug'),
     //Lazy load the slug generator
     slugGenerator: Ember.computed(function () {
+        console.log('HELLO WORLD')
         return SlugGenerator.create({
             ghostPaths: this.get('ghostPaths'),
             slugType: 'issue'
@@ -49,6 +50,7 @@ var IssueEditorControllerMixin = Ember.Mixin.create({
         issue.set('image', uploadResult.imgUrl);
         issue.set('status', 'draft');
         issue.get('tags').setObjects(this.get('tags'));
+        issue.set('slug', this.get('series'));
 
         return issue.save().then(function (model) {
           model.updateTags();

@@ -164,7 +164,7 @@ issues = {
         articleNum = object.issues[0]['article_length']
 
         if (issueStatus === 'published' && articleNum === 0) {
-            return Promise.reject(new errors.NotFoundError('You cannot publish issues with no articles'));
+            return Promise.reject(new errors.NoPermissionError('You cannot publish issues with no articles'));
         }
         return dataProvider.Issue.edit(checkedIssueData.issues[0], options);
       }).then(function (result) {

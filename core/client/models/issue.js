@@ -5,7 +5,7 @@ var Issue = DS.Model.extend(NProgressSaveMixin, ValidationEngine, {
     validationType: 'issue',
 
     uuid: DS.attr('string'),
-    title: DS.attr('string', {defaultValue: ''}),
+    title: DS.attr('string', {defaultValue: 'title'}),
     slug: DS.attr('string'),
     image: DS.attr('string'),
     pdf: DS.attr('string'),
