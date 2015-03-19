@@ -127,7 +127,7 @@ Things marked with **<!!!>** have higher priority. Permissions for Editor, Autho
   - I think the best way to handle this is to index all Issues, Articles, and Posts when they are saved to the database.
 - Magazine issues should not have a title.
   - Currently, they do. HB Magazines only have an "Issue Number", which is represented as its "series" in the Schema for Issue on the backend.
-- Magazines should not be allowed to publish until they have at least one Article.
+- Magazines notification if one article is not existent
 - ~~Permissions for Editor, Author, and User need to be tested.~~
 - **<!!!>** Need to be able to import data from Hardboiled Wordpress. (All posts and users) 
   - A lot of this has been done [in this repo](https://github.com/InnoD-WebTier/wp2ghost), but it's really slow and buggy right now. You'll need to get access to the Hardboiled Wordpress to be able to export their data (and then import it into Ghost).
