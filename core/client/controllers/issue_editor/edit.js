@@ -16,7 +16,7 @@ var IssueEditorEditController = Ember.ObjectController.extend(IssueEditorControl
   //Requests slug from title
   generateSlugPlaceholder: function () {
     var self = this,
-    title = this.get('title');
+    title = this.get('titleScratch');
 
     this.get('slugGenerator').generateSlug(title).then(function (slug) {
       self.set('slugPlaceholder', slug);

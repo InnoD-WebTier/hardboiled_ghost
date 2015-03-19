@@ -23,7 +23,6 @@ var IssueEditorControllerMixin = Ember.Mixin.create({
     slugValue: boundOneWay('slug'),
     //Lazy load the slug generator
     slugGenerator: Ember.computed(function () {
-        console.log('HELLO WORLD')
         return SlugGenerator.create({
             ghostPaths: this.get('ghostPaths'),
             slugType: 'issue'
