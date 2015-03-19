@@ -125,8 +125,7 @@ Things marked with **<!!!>** have higher priority. Permissions for Editor, Autho
 - **<!!!>** Search
   - See `search` directory above. Check out [norch](https://github.com/fergiemcdowall/norch), [ghostHunter](https://github.com/jamalneufeld/ghostHunter), or [lunr.js](http://lunrjs.com/).
   - I think the best way to handle this is to index all Issues, Articles, and Posts when they are saved to the database.
-- Magazine issues should not have a title.
-  - Currently, they do. HB Magazines only have an "Issue Number", which is represented as its "series" in the Schema for Issue on the backend.
+- Populate issue title with series number (Ben)
 - Magazines notification if one article is not existent
 - ~~Permissions for Editor, Author, and User need to be tested.~~
 - **<!!!>** Need to be able to import data from Hardboiled Wordpress. (All posts and users) 
