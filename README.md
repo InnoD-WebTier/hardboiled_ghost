@@ -130,7 +130,6 @@ Things marked with **<!!!>** have higher priority. Permissions for Editor, Autho
 - ~~Permissions for Editor, Author, and User need to be tested.~~
 - **<!!!>** Need to be able to import data from Hardboiled Wordpress. (All posts and users) 
   - A lot of this has been done [in this repo](https://github.com/InnoD-WebTier/wp2ghost), but it's really slow and buggy right now. You'll need to get access to the Hardboiled Wordpress to be able to export their data (and then import it into Ghost).
-- Tags for Issues and Articles seem wonky...
 - Getting the first page of a PDF is SUPER hacky right now!!!
   - I upload the PDF to Cloudinary because they have a nice API for getting images from PDF, and then query the image of the first page from there. **THIS IS A TERRIBLE SOLUTION** someone should fix this or just make HB upload the cover photo manually.
   - Username for [Cloudinary](https://cloudinary.com) account is `aykamko@gmail.com`. Ask Maruchi for the password.
