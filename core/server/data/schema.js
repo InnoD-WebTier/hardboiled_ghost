@@ -73,6 +73,7 @@ var db = {
             bio: {type: 'string', maxlength: 200, nullable: true},
             website: {type: 'text', maxlength: 2000, nullable: true, validations: {isEmptyOrURL: true}},
             location: {type: 'text', maxlength: 65535, nullable: true},
+            title: {type: 'string', maxlength: 150, nullable: false, defaultTo: 'Member'},     
             accessibility: {type: 'text', maxlength: 65535, nullable: true},
             status: {type: 'string', maxlength: 150, nullable: false, defaultTo: 'active'},
             language: {type: 'string', maxlength: 6, nullable: false, defaultTo: 'en_US'},

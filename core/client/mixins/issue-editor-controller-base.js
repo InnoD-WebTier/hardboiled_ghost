@@ -49,6 +49,7 @@ var IssueEditorControllerMixin = Ember.Mixin.create({
         issue.set('image', uploadResult.imgUrl);
         issue.set('status', 'draft');
         issue.get('tags').setObjects(this.get('tags'));
+        issue.set('slug', this.get('series'));
 
         return issue.save().then(function (model) {
           model.updateTags();

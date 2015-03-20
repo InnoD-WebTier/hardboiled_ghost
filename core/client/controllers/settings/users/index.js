@@ -13,6 +13,10 @@ var UsersIndexController = Ember.ArrayController.extend(PaginationControllerMixi
         return /^active|warn-[1-4]|locked$/.test(user.get('status'));
     }),
 
+    inactiveUsers: Ember.computed.filter('users', function (user) {
+        return /^inactive$/.test(user.get('status'));
+    }),
+
     invitedUsers: Ember.computed.filter('users', function (user) {
         var status = user.get('status');
 

@@ -123,13 +123,19 @@ issues = {
      */
     add: function add(object, options) {
         options = options || {};
-
         return utils.checkObject(object, docName).then(function (checkedIssueData) {
+            checkedIssueDataCopy = checkedIssueData
             if (options.include) {
               options.include = prepareInclude(options.include);
             }
-
-            return dataProvider.Issue.add(checkedIssueData.issues[0], options);
+            var user_id = options.context.user;
+                return dataProvider.User.findOne({id: user_id}, {context: options.context});    
+            }).then(function (user) {
+                var userRole = user.related('roles').models[0];
+                if (userRole.attributes.name === 'Author') {
+                    return Promise.reject(new errors.NoPermissionError('You do not have permission to work with issues.'));
+                }
+            return dataProvider.Issue.add(checkedIssueDataCopy.issues[0], options);
         }).then(function (result) {
             return {issues: [result.toJSON()]};
         });
@@ -152,7 +158,14 @@ issues = {
         if (options.include) {
           options.include = prepareInclude(options.include);
         }
+        console.log(object)
+        console.log(options)
+        issueStatus = object.issues[0]['status']
+        articleNum = object.issues[0]['article_length']
 
+        if (issueStatus === 'published' && articleNum === 0) {
+            return Promise.reject(new errors.NoPermissionError('You cannot publish issues with no articles'));
+        }
         return dataProvider.Issue.edit(checkedIssueData.issues[0], options);
       }).then(function (result) {
         if (result) {

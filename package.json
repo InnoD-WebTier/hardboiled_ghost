@@ -37,7 +37,7 @@
     "bookshelf": "0.7.6",
     "busboy": "0.2.8",
     "cheerio": "0.17.0",
-    "cloudinary": "^1.0.13",
+    "cloudinary": "^1.1.2",
     "colors": "0.6.2",
     "compression": "1.1.0",
     "connect-slashes": "1.2.0",

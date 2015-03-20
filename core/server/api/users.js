@@ -215,6 +215,7 @@ users = {
                     newUser.email
                 ).then(function (foundUser) {
                     if (!foundUser) {
+                       
                         return dataProvider.User.add(newUser, options);
                     } else {
                         // only invitations for already invited users are resent
@@ -225,7 +226,9 @@ users = {
                         }
                     }
                 }).then(function (invitedUser) {
+                    
                     user = invitedUser.toJSON();
+                    console.log(user);
                     return sendInviteEmail(user);
                 }).then(function () {
                     // If status was invited-pending and sending the invitation succeeded, set status to invited.
