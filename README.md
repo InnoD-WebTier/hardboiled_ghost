@@ -10,6 +10,9 @@ Install Node.js and NPM (Node Package Manager). Then:
 
 (make sure you're inside the directory when running the last 3 commands)
 
+You will also need convert (ImageMagick) and gs (GhostScript) to generate
+images from the PDFs.
+
 Workflow
 ========
 
