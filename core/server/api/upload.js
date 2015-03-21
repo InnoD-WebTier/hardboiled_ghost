@@ -1,5 +1,4 @@
-var cloudinary = require('cloudinary'),
-    Promise    = require('bluebird'),
+var Promise    = require('bluebird'),
     path       = require('path'),
     fs         = require('fs-extra'),
     storage    = require('../storage'),
