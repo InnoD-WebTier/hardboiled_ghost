@@ -3,7 +3,7 @@ var Promise    = require('bluebird'),
     fs         = require('fs-extra'),
     storage    = require('../storage'),
     errors     = require('../errors'),
-    exec = require('child_process').exec,
+    exec       = require('child_process').exec,
 
     upload;
 
