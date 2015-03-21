@@ -112,6 +112,7 @@ upload = {
                   }
                   var image = {
                       type: 'image/jpeg',
+                      name: options.uploadpdf.name+".jpg",
                       path: img_tmp,
                   }
                   resolve(store.save(image));
