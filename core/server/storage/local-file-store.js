@@ -1,8 +1,7 @@
 // # Local File System Image Storage module
 // The (default) module for storing images, using the local file system
 
-var cloudinary = require('cloudinary'),
-    express    = require('express'),
+var express    = require('express'),
     fs         = require('fs-extra'),
     path       = require('path'),
     util       = require('util'),
