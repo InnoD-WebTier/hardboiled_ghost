@@ -136,8 +136,8 @@ Things marked with **<!!!>** have higher priority. Permissions for Editor, Autho
 - ~~Getting the first page of a PDF is SUPER hacky right now!!!~~
   - ~~I upload the PDF to Cloudinary because they have a nice API for getting images from PDF, and then query the image of the first page from there. **THIS IS A TERRIBLE SOLUTION** someone should fix this or just make HB upload the cover photo manually.~~ Now generated via convert (ImageMagick)
   - ~~Username for [Cloudinary](https://cloudinary.com) account is `aykamko@gmail.com`. Ask Maruchi for the password.~~
-- ~~Posts need to be able to be marked as carousel-able.
-  - Their cover image should be displayed in the carousel on the front page.~~
+- ~~Posts need to be able to be marked as carousel-able.~~
+  - ~~Their cover image should be displayed in the carousel on the front page.~~
 - New Articles should take the status of the Issue that contains them automatically
   - i.e., if an Issue is published, then new Articles added to that issue _after the Issue has been published_
    should be immediately published
