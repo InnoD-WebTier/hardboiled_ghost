@@ -136,8 +136,8 @@ Things marked with **<!!!>** have higher priority. Permissions for Editor, Autho
 - ~~Getting the first page of a PDF is SUPER hacky right now!!!~~
   - ~~I upload the PDF to Cloudinary because they have a nice API for getting images from PDF, and then query the image of the first page from there. **THIS IS A TERRIBLE SOLUTION** someone should fix this or just make HB upload the cover photo manually.~~ Now generated via convert (ImageMagick)
   - ~~Username for [Cloudinary](https://cloudinary.com) account is `aykamko@gmail.com`. Ask Maruchi for the password.~~
-- Posts need to be able to be marked as carousel-able.
-  - Their cover image should be displayed in the carousel on the front page.
+- ~~Posts need to be able to be marked as carousel-able.
+  - Their cover image should be displayed in the carousel on the front page.~~
 - New Articles should take the status of the Issue that contains them automatically
   - i.e., if an Issue is published, then new Articles added to that issue _after the Issue has been published_
    should be immediately published
@@ -149,14 +149,13 @@ We were originally using [blog.ghost.org](http://blog.ghost.org/) and [Medium](h
 
 - Comments for posts! [https://disqus.com/](https://disqus.com/)
 - Things that need to be styled: (Abhinav)
-  - CMS for Issue and Article creation
-  - Sidebar
+  - ~~CMS for Issue and Article creation~~
+  - ~~Sidebar~~
   - Authors should have a little card with their info in their posts, articles, and search (scroll to bottom of [this post](http://blog.ghost.org/wishlist/))
   - Tag and Author "search" pages
   - Table of contents for Articles
-  - Carousel on front page (this needs to be hooked up to backend as well)
 
-- An About Page for the Hardboiled Team (Robert)
+- An About Page for the Hardboiled Team (Robert, Magdalene, June Katherine)
   - Like [this](http://hardboiled.berkeley.edu/about/) but much more sexy with pictures and bios and pretty/interesting things.
   - The About Page should be a **static URL Post** (probably).
 
@@ -164,6 +163,5 @@ We were originally using [blog.ghost.org](http://blog.ghost.org/) and [Medium](h
   - Archived Issues on their [current site](http://hardboiled.berkeley.edu/about/) becomes Issues for us.
   - Web Exclusives are merged in as regular Posts.
   - The Course tab from their current site becomes a *hidden* static page, only accessible via direct URL.
-  - No Photos tab.
-  - No Contact tab, just a footer.
-  - No explicit "Home" tab. Clicking on the HB logo brings you to Home page.
+  - ~~No Contact tab, just a footer.~~
+  - ~~No explicit "Home" tab. Clicking on the HB logo brings you to Home page.~~
