@@ -36,6 +36,10 @@ frontendRoutes = function () {
         res.redirect(301, subdir + '/rss/');
     });
 
+    // Search
+    router.get('/search/', frontend.search);
+    router.get('/search/:slug/', frontend.search);
+
     // Tags
     router.get('/tag/:slug/rss/', frontend.rss);
     router.get('/tag/:slug/rss/:page/', frontend.rss);
