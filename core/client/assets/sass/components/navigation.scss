@@ -176,12 +176,13 @@ $menu-width: 260px;
         height: auto;
         top: 0;
         bottom: 0;
-        left: 0;
+        left: -$menu-width;
         background: darken($darkgrey, 7%);
         overflow: auto;
         -webkit-overflow-scrolling: touch;
 
-        transform: translate3d(-$menu-width, 0px, 0px); // Not off the screen, to give a parallax effect
+        // commented-out to remove the effect on screen small
+        // transform: translate3d(-$menu-width, 0px, 0px); // Not off the screen, to give a parallax effect
         transition: transform $side-outlet-transition-duration cubic-bezier(0.1, 0.7, 0.1, 1);
 
         .thing, .thing2 {
@@ -189,7 +190,8 @@ $menu-width: 260px;
         }
 
         body.global-nav-expanded & {
-            transform: translate3d(0, 0px, 0px);
+            // expand out to 260px
+            transform: translate3d($menu-width, 0px, 0px);
         }
     }
 
