@@ -137,6 +137,7 @@ issues = {
                 }
             return dataProvider.Issue.add(checkedIssueDataCopy.issues[0], options);
         }).then(function (result) {
+            result.attributes.title = result.attributes.series
             return {issues: [result.toJSON()]};
         });
     },
@@ -158,17 +159,18 @@ issues = {
         if (options.include) {
           options.include = prepareInclude(options.include);
         }
-        console.log(object)
-        console.log(options)
         issueStatus = object.issues[0]['status']
         articleNum = object.issues[0]['article_length']
-
+        
         if (issueStatus === 'published' && articleNum === 0) {
             return Promise.reject(new errors.NoPermissionError('You cannot publish issues with no articles'));
         }
         return dataProvider.Issue.edit(checkedIssueData.issues[0], options);
       }).then(function (result) {
         if (result) {
+
+          result.attributes.title = result.attributes.series
+         
           var issue = result.toJSON();
 
           // If previously was not published and now is (or vice versa), signal the change
@@ -178,7 +180,6 @@ issues = {
           }
           return {issues: [issue]};
         }
-
         return Promise.reject(new errors.NotFoundError('Issue not found.'));
       });
 
