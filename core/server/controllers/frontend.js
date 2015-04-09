@@ -325,7 +325,7 @@ frontendControllers = {
         }).catch(handleError(next));
     },
     search: function (req, res, next) {
-        var queryParam = req.params.slug || req.query['search-query'] || '',
+        var queryParam = req.params.slug || req.query['search-query'] || req.body['search-query'] || '',
             options = {
                 query: queryParam,
             };

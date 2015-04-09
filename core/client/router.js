@@ -48,7 +48,6 @@ Router.map(function () {
       });
     });
   });
-  this.route('search');
   this.route('debug');
   //Redirect legacy content to posts
   this.route('content');

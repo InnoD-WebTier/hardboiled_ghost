@@ -38,6 +38,7 @@ frontendRoutes = function () {
 
     // Search
     router.get('/search/', frontend.search);
+    router.post('/search/', frontend.search);
     router.get('/search/:slug/', frontend.search);
 
     // Tags
