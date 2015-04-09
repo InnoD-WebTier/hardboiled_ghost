@@ -158,8 +158,6 @@ issues = {
         if (options.include) {
           options.include = prepareInclude(options.include);
         }
-        console.log(object)
-        console.log(options)
         issueStatus = object.issues[0]['status']
         articleNum = object.issues[0]['article_length']
 

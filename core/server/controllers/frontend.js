@@ -324,7 +324,20 @@ frontendControllers = {
             });
         }).catch(handleError(next));
     },
+    search: function (req, res, next) {
+        var queryParam = req.params.slug || req.query['search-query'] || req.body['search-query'] || '',
+            options = {
+                query: queryParam,
+            };
 
+        return filters.doFilter('preSearchPageRender').then(function () {
+            getActiveThemePaths().then(function (paths) {
+                var view = paths.hasOwnProperty('search.hbs') ? 'search' : 'index';
+                setResponseContext(req, res);
+                res.render(view, options);
+            });
+        }).catch(handleError(next));
+    },
     issues: function (req, res, next) {
         // Parse the issue year
         var thisYear = new Date().getFullYear(),
