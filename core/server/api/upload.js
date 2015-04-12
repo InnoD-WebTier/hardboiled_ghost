@@ -1,9 +1,9 @@
-var cloudinary = require('cloudinary'),
-    Promise    = require('bluebird'),
+var Promise    = require('bluebird'),
     path       = require('path'),
     fs         = require('fs-extra'),
     storage    = require('../storage'),
     errors     = require('../errors'),
+    exec       = require('child_process').exec,
 
     upload;
 
@@ -91,23 +91,32 @@ upload = {
             }
         }).then(function () {
             return store.savePdf(options.uploadpdf);
-        }).then(function (url) {
-            pdfUrl = url;
-            var fullPath = process.cwd() + url;
-            // upload pdf to cloudinary, generate image for first page of pdf
+        }).then(function (filepath) {
+            pdfUrl = filepath;
+
+            pdf_tmp = options.uploadpdf.path;
+            img_tmp = pdf_tmp + ".jpg"; 
+            var convert_cmd = "convert "+pdf_tmp+"[0] -density 96 -resize 850x1100 -alpha flatten "+img_tmp;
             return new Promise(function (resolve) {
-              cloudinary.uploader.upload(fullPath, function (result) {
-                return resolve(result);
-              });
-            });
-        }).then(function (result) {
-            return new Promise(function (resolve) {
-              return resolve(cloudinary.url(result.public_id, {
-                format: "jpg",
-                width: 850,
-                height: 1100,
-                crop: "fill"
-              }));
+                child = exec(convert_cmd, function(error, stdout, stderr) {
+                    if(error != null) {
+                        console.error("ERROR unable to generate jpg for pdf");
+                        console.error("command failed: " + convert_cmd);
+                        console.error("stderr: " + stderr);
+                        console.error("Do you have convert (ImageMagick) and GhostScript installed?")
+                    }
+                });
+                child.on('exit', function(code, signal) {
+                  if(code == null || code != 0) {
+                      return Promise.reject(new errors.InternalServerError("Could not generate an image for uploaded PDF."))
+                  }
+                  var image = {
+                      type: 'image/jpeg',
+                      name: options.uploadpdf.name+".jpg",
+                      path: img_tmp,
+                  }
+                  resolve(store.save(image));
+                })
             });
         }).then(function (imgUrl) {
             return {
@@ -115,8 +124,11 @@ upload = {
               imgUrl: imgUrl,
             }
         }).finally(function () {
+            // Remove generated image from tmp location
+            return Promise.promisify(fs.unlink)(img_tmp);
+        }).finally(function () {
             // Remove uploaded file from tmp location
-            return Promise.promisify(fs.unlink)(filepath);
+            return Promise.promisify(fs.unlink)(pdf_tmp);
         });
     },
 };
