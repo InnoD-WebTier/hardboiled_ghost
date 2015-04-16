@@ -263,6 +263,7 @@ ghostBookshelf.Model = ghostBookshelf.Model.extend({
      */
     edit: function (data, options) {
         var id = options.id;
+        console.log(data)
         data = this.filterData(data);
         options = this.filterOptions(options, 'edit');
 

@@ -71,7 +71,6 @@ function getPostPage(options, withFeatured) {
         if (!withFeatured) {
             options.featured = false;
         }
-
         return api.posts.browse(options);
     });
 }
@@ -340,7 +339,15 @@ frontendControllers = {
     },
     issues: function (req, res, next) {
         // Parse the issue year
-        var thisYear = new Date().getFullYear(),
+        return api.issues.browseByYear({include: 'tags'}).then(function (information) {
+        var queryYears = information.meta.publish_years
+        if (queryYears.length === 0) {
+            var temporary = new Date().getFullYear()
+        } else {
+            var temporary = Math.max.apply(Math, queryYears);
+        }
+        console.log(temporary)
+        var thisYear = temporary,
             yearParam = req.params.year !== undefined ? parseInt(req.params.year, 10) : thisYear,
             options = {
                 year: yearParam
@@ -371,6 +378,7 @@ frontendControllers = {
                 });
             });
         }).catch(handleError(next));
+        });
     },
     tag: function (req, res, next) {
         // Parse the page number
