@@ -323,6 +323,24 @@ frontendControllers = {
             });
         }).catch(handleError(next));
     },
+    about: function(req, res, next) {
+        return filters.doFilter('preAboutPageRender').then(function () {
+            getActiveThemePaths().then(function (paths) {
+                var view = 'about'
+                setResponseContext(req, res);
+                res.render(view, {});
+            });
+        }).catch(handleError(next));
+    },
+    contact: function(req, res, next) {
+        return filters.doFilter('preContactPageRender').then(function () {
+            getActiveThemePaths().then(function (paths) {
+                var view = 'contact'
+                setResponseContext(req, res);
+                res.render(view, {});
+            });
+        }).catch(handleError(next));
+    },
     search: function (req, res, next) {
         var queryParam = req.params.slug || req.query['search-query'] || req.body['search-query'] || '',
             options = {

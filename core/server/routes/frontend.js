@@ -53,6 +53,12 @@ frontendRoutes = function () {
     router.get('/author/:slug/page/:page/', frontend.author);
     router.get('/author/:slug/', frontend.author);
 
+    // About
+    router.get('/about/', frontend.about);
+
+    // Contact
+    router.get('/contact/', frontend.contact);
+
     // Issues
     router.get('/issues/', frontend.issues);
     router.get('/issues/:year/', frontend.issues);
