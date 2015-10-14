@@ -7,6 +7,13 @@ var _              = require('lodash'),
     xmlrpc         = require('../xmlrpc'),
     storage        = require('../storage'),
 
+    // HACK: to get unique YEAR on both MySQL and sqlite3
+    mode = process.env.NODE_ENV === undefined ? 'development' : process.env.NODE_ENV,
+    appRoot = path.resolve(__dirname, '../../../'),
+    configFilePath = process.env.GHOST_CONFIG || path.join(appRoot, 'config.js'),
+    configFile = require(configFilePath),
+    appConfig = configFile[mode],
+
     Issue,
     Issues;
 
@@ -331,8 +338,11 @@ Issue = ghostBookshelf.Model.extend({
                 qb = ghostBookshelf.knex(tableName);
                 var knex = ghostBookshelf.knex;
 
-                // TODO: hack for SQLite3. probably won't work for MySql
-                return knex.raw('SELECT DISTINCT strftime("%Y", published_at / 1000, "unixepoch") ' +
+                // TODO: have to use different raw queries depending on database
+                var yearQuery = (appConfig.database.client === 'sqlite3') ?
+                    'SELECT DISTINCT strftime("%Y", published_at / 1000, "unixepoch") ' :
+                    'SELECT DISTINCT FROM_UNIXTIME(`published_at` / 1000, "%Y") ';
+                return knex.raw(yearQuery +
                                 'FROM ' + tableName + ' ' +
                                 'WHERE status = "published"');
 
